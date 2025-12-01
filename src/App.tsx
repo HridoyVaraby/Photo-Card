@@ -46,10 +46,8 @@ function App() {
       canvas.width = state.settings.width;
       canvas.height = state.settings.height;
 
-      // Use imported renderCard function
-
-      // Render the card at full resolution
-      renderCard(canvas, state, 1);
+      // Render the card at full resolution (await the async render)
+      await renderCard(canvas, state, 1);
 
       // Export to blob
       const blob = await new Promise<Blob>((resolve, reject) => {
@@ -80,26 +78,30 @@ function App() {
   const isReadyToExport = state.mainImage && state.headline.trim() !== '';
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-100 font-inter">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-white shadow-md border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                News Photo Card Generator
-              </h1>
-              <p className="text-sm text-gray-600 mt-1">
-                Create branded social media cards with your news photos
-              </p>
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-sm">
+                N
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900 leading-tight">
+                  News Card Generator
+                </h1>
+                <p className="text-xs text-gray-500 font-medium">
+                  Professional Social Media Assets
+                </p>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
-              <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                isReadyToExport
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-yellow-100 text-yellow-800'
-              }`}>
-                {isReadyToExport ? 'Ready to Export' : 'Missing Content'}
+              <div className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors duration-200 ${isReadyToExport
+                  ? 'bg-green-100 text-green-700 border border-green-200'
+                  : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
+                }`}>
+                {isReadyToExport ? '✓ Ready to Export' : '⚠ Missing Content'}
               </div>
             </div>
           </div>
@@ -108,9 +110,9 @@ function App() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Column - Controls */}
-          <div className="space-y-8">
+          <div className="lg:col-span-5 space-y-6">
             <Toolbar
               state={state}
               onStateChange={handleStateChange}
@@ -118,63 +120,52 @@ function App() {
           </div>
 
           {/* Right Column - Preview */}
-          <div className="lg:sticky lg:top-8 lg:h-fit">
-            <CanvasPreview
-              state={state}
-              onExport={handleExport}
-              isLoading={isExporting}
-            />
-          </div>
-        </div>
-
-        {/* Info Section */}
-        <div className="mt-12 bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">How to Use</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-semibold text-sm">
-                  1
+          <div className="lg:col-span-7">
+            <div className="lg:sticky lg:top-24">
+              <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200">
+                <div className="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                  <h3 className="font-semibold text-gray-700">Live Preview</h3>
+                  <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded border border-gray-200">
+                    {state.settings.width} x {state.settings.height}
+                  </span>
                 </div>
-                <h3 className="font-medium text-gray-900">Upload Content</h3>
-              </div>
-              <p className="text-sm text-gray-600 ml-10">
-                Add your main image and optional company logo
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-semibold text-sm">
-                  2
+                <div className="p-6 bg-gray-100 flex items-center justify-center min-h-[400px]">
+                  <CanvasPreview
+                    state={state}
+                    onExport={handleExport}
+                    isLoading={isExporting}
+                  />
                 </div>
-                <h3 className="font-medium text-gray-900">Customize Design</h3>
               </div>
-              <p className="text-sm text-gray-600 ml-10">
-                Write your headline and choose colors, fonts, and resolution
-              </p>
-            </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-semibold text-sm">
-                  3
-                </div>
-                <h3 className="font-medium text-gray-900">Export & Share</h3>
+              {/* Quick Tips */}
+              <div className="mt-6 bg-blue-50 rounded-xl p-6 border border-blue-100">
+                <h3 className="text-sm font-semibold text-blue-900 mb-3">Pro Tips</h3>
+                <ul className="space-y-2 text-sm text-blue-800">
+                  <li className="flex items-start">
+                    <span className="mr-2">•</span>
+                    Use high-resolution images (at least 1200px wide) for best results.
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">•</span>
+                    Keep headlines concise (under 3 lines) for maximum readability.
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">•</span>
+                    Match the brand color to your organization's primary color.
+                  </li>
+                </ul>
               </div>
-              <p className="text-sm text-gray-600 ml-10">
-                Download your card as PNG or JPEG and share on social media
-              </p>
             </div>
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <footer className="bg-white border-t border-gray-200 mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-sm text-gray-500">
-            News Photo Card Generator - Built with React, TypeScript, and Canvas API
+            <p>© {new Date().getFullYear()} News Photo Card Generator. All rights reserved.</p>
           </div>
         </div>
       </footer>

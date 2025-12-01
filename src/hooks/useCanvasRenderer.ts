@@ -6,7 +6,7 @@ export const useCanvasRenderer = (state: CardState) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const renderTimeoutRef = useRef<number>();
 
-  const render = useCallback(() => {
+  const render = useCallback(async () => {
     if (!canvasRef.current) return;
 
     const canvas = canvasRef.current;
@@ -22,7 +22,7 @@ export const useCanvasRenderer = (state: CardState) => {
     );
 
     try {
-      renderCard(canvas, state, scale);
+      await renderCard(canvas, state, scale);
     } catch (error) {
       console.error('Canvas rendering error:', error);
     }
@@ -60,7 +60,7 @@ export const useCanvasRenderer = (state: CardState) => {
     exportCanvas.height = state.settings.height;
 
     try {
-      renderCard(exportCanvas, state, 1);
+      await renderCard(exportCanvas, state, 1);
 
       return new Promise((resolve, reject) => {
         exportCanvas.toBlob(

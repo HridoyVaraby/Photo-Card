@@ -59,11 +59,11 @@ export const UploadField: React.FC<UploadFieldProps> = ({
 
       <div
         className={`
-          relative border-2 border-dashed rounded-lg p-6 text-center cursor-pointer
-          transition-colors duration-200
+          relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer
+          transition-all duration-200 group
           ${value
             ? 'border-blue-500 bg-blue-50'
-            : 'border-gray-300 hover:border-gray-400 bg-gray-50 hover:bg-gray-100'
+            : 'border-gray-300 hover:border-blue-400 bg-white hover:bg-gray-50'
           }
           ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
         `}
@@ -88,20 +88,22 @@ export const UploadField: React.FC<UploadFieldProps> = ({
         )}
 
         {!isLoading && value && (
-          <div>
-            <div className="flex items-center justify-center mb-2">
-              <img
-                src={value}
-                alt="Preview"
-                className="max-h-32 max-w-full rounded object-contain"
-              />
+          <div className="relative">
+            <div className="flex items-center justify-center mb-3">
+              <div className="relative group-hover:scale-105 transition-transform duration-200">
+                <img
+                  src={value}
+                  alt="Preview"
+                  className="max-h-40 max-w-full rounded-lg shadow-sm object-contain bg-white"
+                />
+              </div>
             </div>
-            <div className="flex items-center justify-center space-x-2">
-              <span className="text-sm text-gray-600">Image uploaded</span>
+            <div className="flex items-center justify-center space-x-3">
+              <span className="text-sm text-blue-700 font-medium bg-blue-100 px-2 py-1 rounded">Image uploaded</span>
               <button
                 type="button"
                 onClick={handleRemove}
-                className="text-red-500 hover:text-red-700 text-sm font-medium"
+                className="text-red-500 hover:text-red-700 text-sm font-medium hover:underline"
               >
                 Remove
               </button>
@@ -110,37 +112,43 @@ export const UploadField: React.FC<UploadFieldProps> = ({
         )}
 
         {!isLoading && !value && (
-          <div className="space-y-2">
-            <svg
-              className="mx-auto h-12 w-12 text-gray-400"
-              stroke="currentColor"
-              fill="none"
-              viewBox="0 0 48 48"
-              aria-hidden="true"
-            >
-              <path
-                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <div className="text-sm text-gray-600">
-              <span className="font-medium text-blue-600">Upload a file</span> or drag and drop
+          <div className="space-y-3">
+            <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-200">
+              <svg
+                className="h-6 w-6"
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
             </div>
-            <p className="text-xs text-gray-500">{placeholder}</p>
+            <div className="text-sm text-gray-600">
+              <span className="font-semibold text-blue-600 hover:text-blue-700">Click to upload</span>
+              <span className="text-gray-500"> or drag and drop</span>
+            </div>
+            <p className="text-xs text-gray-400">{placeholder}</p>
           </div>
         )}
 
         {error && (
-          <div className="mt-2 text-sm text-red-600">
+          <div className="mt-3 text-sm text-red-600 bg-red-50 py-1 px-2 rounded">
             {error}
           </div>
         )}
       </div>
 
-      <p className="mt-1 text-xs text-gray-500">
-        PNG, JPG, GIF up to 10MB
+      <p className="mt-2 text-xs text-gray-400 flex items-center">
+        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Supports PNG, JPG, GIF up to 10MB
       </p>
     </div>
   );

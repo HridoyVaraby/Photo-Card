@@ -61,11 +61,21 @@ export const calculateFontSize = (
   return fontSize;
 };
 
-export const renderCard = (
+const loadImage = (src: string): Promise<HTMLImageElement> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous'; // Enable CORS for images
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+};
+
+export const renderCard = async (
   canvas: HTMLCanvasElement,
   state: CardState,
   scale: number = 1
-): void => {
+): Promise<void> => {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Could not get canvas context');
 
@@ -84,12 +94,13 @@ export const renderCard = (
 
   // For Durbin News layout, handle background differently
   if (state.settings.layout === 'durbin-news') {
-    drawOverlayElements(ctx, state, width, height);
+    await drawOverlayElements(ctx, state, width, height);
   } else {
     // Draw background image for other layouts
     if (state.mainImage) {
-      const bgImg = new Image();
-      bgImg.onload = () => {
+      try {
+        const bgImg = await loadImage(state.mainImage);
+        
         // Calculate cover scaling
         const imgAspect = bgImg.width / bgImg.height;
         const canvasAspect = width / height;
@@ -112,26 +123,29 @@ export const renderCard = (
         }
 
         ctx.drawImage(bgImg, drawX, drawY, drawWidth, drawHeight);
-
-        // Continue with other elements after background is drawn
-        drawOverlayElements(ctx, state, width, height);
-      };
-      bgImg.src = state.mainImage;
+      } catch (error) {
+        console.error('Failed to load background image:', error);
+        // Fallback
+        ctx.fillStyle = '#f3f4f6';
+        ctx.fillRect(0, 0, width, height);
+      }
     } else {
       // Draw placeholder background
       ctx.fillStyle = '#f3f4f6';
       ctx.fillRect(0, 0, width, height);
-      drawOverlayElements(ctx, state, width, height);
     }
+    
+    // Continue with other elements after background is drawn
+    await drawOverlayElements(ctx, state, width, height);
   }
 };
 
-const drawOverlayElements = (
+const drawOverlayElements = async (
   ctx: CanvasRenderingContext2D,
   state: CardState,
   width: number,
   height: number
-): void => {
+): Promise<void> => {
   const padding = 32;
   const logoSize = Math.floor(width * 0.14); // 14% of canvas width
 
@@ -140,31 +154,32 @@ const drawOverlayElements = (
 
   switch (layout) {
     case 'facebook-modern':
-      drawFacebookModernLayout(ctx, state, width, height, padding, logoSize);
+      await drawFacebookModernLayout(ctx, state, width, height, padding, logoSize);
       break;
     case 'facebook-minimal':
-      drawFacebookMinimalLayout(ctx, state, width, height, padding, logoSize);
+      await drawFacebookMinimalLayout(ctx, state, width, height, padding, logoSize);
       break;
     case 'durbin-news':
-      drawDurbinNewsLayout(ctx, state, width, height, padding, logoSize);
+      await drawDurbinNewsLayout(ctx, state, width, height, padding, logoSize);
       break;
     default:
-      drawDefaultLayout(ctx, state, width, height, padding, logoSize);
+      await drawDefaultLayout(ctx, state, width, height, padding, logoSize);
   }
 };
 
-const drawDefaultLayout = (
+const drawDefaultLayout = async (
   ctx: CanvasRenderingContext2D,
   state: CardState,
   width: number,
   height: number,
   padding: number,
   logoSize: number
-): void => {
+): Promise<void> => {
   // Draw logo if available
   if (state.logo) {
-    const logoImg = new Image();
-    logoImg.onload = () => {
+    try {
+      const logoImg = await loadImage(state.logo);
+      
       // Draw logo in top-right with padding
       const logoX = width - logoSize - padding;
       const logoY = padding;
@@ -177,29 +192,28 @@ const drawDefaultLayout = (
 
       // Draw logo
       ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
-
-      // Draw headline bar after logo is drawn
-      drawHeadlineBar(ctx, state, width, height, padding);
-    };
-    logoImg.src = state.logo;
-  } else {
-    // Draw headline bar immediately if no logo
-    drawHeadlineBar(ctx, state, width, height, padding);
+    } catch (error) {
+      console.error('Failed to load logo:', error);
+    }
   }
+
+  // Draw headline bar
+  drawHeadlineBar(ctx, state, width, height, padding);
 };
 
-const drawFacebookModernLayout = (
+const drawFacebookModernLayout = async (
   ctx: CanvasRenderingContext2D,
   state: CardState,
   width: number,
   height: number,
   padding: number,
   logoSize: number
-): void => {
+): Promise<void> => {
   // Facebook modern layout: logo top-left, headline in semi-transparent overlay box
   if (state.logo) {
-    const logoImg = new Image();
-    logoImg.onload = () => {
+    try {
+      const logoImg = await loadImage(state.logo);
+      
       // Draw logo in top-left
       const logoX = padding;
       const logoY = padding;
@@ -212,29 +226,28 @@ const drawFacebookModernLayout = (
 
       // Draw logo
       ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
-
-      // Draw headline in bottom overlay
-      drawFacebookHeadlineOverlay(ctx, state, width, height, padding);
-    };
-    logoImg.src = state.logo;
-  } else {
-    // Draw headline immediately if no logo
-    drawFacebookHeadlineOverlay(ctx, state, width, height, padding);
+    } catch (error) {
+      console.error('Failed to load logo:', error);
+    }
   }
+
+  // Draw headline in bottom overlay
+  drawFacebookHeadlineOverlay(ctx, state, width, height, padding);
 };
 
-const drawFacebookMinimalLayout = (
+const drawFacebookMinimalLayout = async (
   ctx: CanvasRenderingContext2D,
   state: CardState,
   width: number,
   height: number,
   padding: number,
   logoSize: number
-): void => {
+): Promise<void> => {
   // Facebook minimal layout: clean typography with subtle branding
   if (state.logo) {
-    const logoImg = new Image();
-    logoImg.onload = () => {
+    try {
+      const logoImg = await loadImage(state.logo);
+      
       // Small logo in top-right corner
       const smallLogoSize = Math.floor(width * 0.08);
       const logoX = width - smallLogoSize - padding;
@@ -244,15 +257,13 @@ const drawFacebookMinimalLayout = (
       ctx.globalAlpha = 0.8;
       ctx.drawImage(logoImg, logoX, logoY, smallLogoSize, smallLogoSize);
       ctx.globalAlpha = 1.0;
-
-      // Draw minimalist headline bar
-      drawMinimalistHeadlineBar(ctx, state, width, height, padding, logoSize);
-    };
-    logoImg.src = state.logo;
-  } else {
-    // Draw headline bar immediately if no logo
-    drawMinimalistHeadlineBar(ctx, state, width, height, padding, logoSize);
+    } catch (error) {
+      console.error('Failed to load logo:', error);
+    }
   }
+
+  // Draw minimalist headline bar
+  drawMinimalistHeadlineBar(ctx, state, width, height, padding, logoSize);
 };
 
 const drawFacebookHeadlineOverlay = (
@@ -427,14 +438,14 @@ const drawHeadlineBar = (
   }
 };
 
-const drawDurbinNewsLayout = (
+const drawDurbinNewsLayout = async (
   ctx: CanvasRenderingContext2D,
   state: CardState,
   width: number,
   height: number,
   padding: number,
   logoSize: number
-): void => {
+): Promise<void> => {
   // Draw red background
   ctx.fillStyle = '#8B1538'; // Deep red color matching the screenshot
   ctx.fillRect(0, 0, width, height);
@@ -452,8 +463,9 @@ const drawDurbinNewsLayout = (
 
   // Draw main image in center with border (FIXED: Use cover scaling to fill full space)
   if (state.mainImage) {
-    const imgImg = new Image();
-    imgImg.onload = () => {
+    try {
+      const imgImg = await loadImage(state.mainImage);
+      
       // Calculate aspect ratio and use cover scaling (fill entire space)
       const imgAspect = imgImg.width / imgImg.height;
       const containerAspect = imgWidth / imgHeight;
@@ -478,8 +490,12 @@ const drawDurbinNewsLayout = (
       }
 
       ctx.drawImage(imgImg, sourceX, sourceY, sourceWidth, sourceHeight, drawX, drawY, drawWidth, drawHeight);
-    };
-    imgImg.src = state.mainImage;
+    } catch (error) {
+      console.error('Failed to load main image:', error);
+      // Draw placeholder
+      ctx.fillStyle = '#f3f4f6';
+      ctx.fillRect(imgX, imgY, imgWidth, imgHeight);
+    }
   } else {
     // Draw placeholder
     ctx.fillStyle = '#f3f4f6';
@@ -487,21 +503,22 @@ const drawDurbinNewsLayout = (
   }
 
   // Draw other elements immediately
-  drawDurbinNewsElements(ctx, state, width, height, padding, logoSize);
+  await drawDurbinNewsElements(ctx, state, width, height, padding, logoSize);
 };
 
-const drawDurbinNewsElements = (
+const drawDurbinNewsElements = async (
   ctx: CanvasRenderingContext2D,
   state: CardState,
   width: number,
   height: number,
   padding: number,
   logoSize: number
-): void => {
+): Promise<void> => {
   // Draw DURBIN NEWS logo in top-left (FIXED: Proper size, contained in header area)
   if (state.logo) {
-    const logoImg = new Image();
-    logoImg.onload = () => {
+    try {
+      const logoImg = await loadImage(state.logo);
+      
       const logoX = padding + 20;
       const logoY = padding + 20;
       // Keep logo contained within header area (before image starts at y=160)
@@ -510,8 +527,9 @@ const drawDurbinNewsElements = (
       const logoHeight = Math.min(logoSize * 0.8, maxLogoHeight); // Constrain height
 
       ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
-    };
-    logoImg.src = state.logo;
+    } catch (error) {
+      console.error('Failed to load logo:', error);
+    }
   } else {
     // Draw text logo if no image provided (contained size)
     ctx.fillStyle = '#ffffff';
