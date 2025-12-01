@@ -9,13 +9,15 @@ const initialState: CardState = {
   mainImage: null,
   logo: null,
   headline: '',
+  date: '৩০ নভেম্বর, ২০২৫',
   settings: {
     width: 1200,
     height: 628,
     font: 'Inter',
-    brandColor: '#1e40af',
+    brandColor: '#8B1538',
     format: 'png',
-    quality: 90
+    quality: 90,
+    layout: 'durbin-news'
   }
 };
 

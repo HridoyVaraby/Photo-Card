@@ -47,6 +47,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     onStateChange({ headline });
   };
 
+  const handleDateChange = (date: string) => {
+    onStateChange({ date });
+  };
+
   const handleResolutionChange = (resolution: ResolutionOption) => {
     onStateChange({
       settings: {
@@ -75,7 +79,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     });
   };
 
-  const handleLayoutChange = (layout: 'default' | 'facebook-modern' | 'facebook-minimal') => {
+  const handleLayoutChange = (layout: 'default' | 'facebook-modern' | 'facebook-minimal' | 'durbin-news') => {
     onStateChange({
       settings: {
         ...state.settings,
@@ -142,6 +146,22 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               Maximum 3 lines. Supports English and Bengali text.
             </p>
           </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Date (Bengali)
+            </label>
+            <input
+              type="text"
+              value={state.date || ''}
+              onChange={(e) => handleDateChange(e.target.value)}
+              placeholder="৩০ নভেম্বর, ২০২৫"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              Enter date in Bengali format for news layout.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -165,7 +185,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           />
 
           <LayoutSelector
-            value={state.settings.layout || 'default'}
+            value={(state.settings.layout || 'default') as 'default' | 'facebook-modern' | 'facebook-minimal' | 'durbin-news'}
             onChange={handleLayoutChange}
           />
 

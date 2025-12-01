@@ -1,8 +1,8 @@
 import React from 'react';
 
 interface LayoutSelectorProps {
-  value: 'default' | 'facebook-modern' | 'facebook-minimal';
-  onChange: (layout: 'default' | 'facebook-modern' | 'facebook-minimal') => void;
+  value: 'default' | 'facebook-modern' | 'facebook-minimal' | 'durbin-news';
+  onChange: (layout: 'default' | 'facebook-modern' | 'facebook-minimal' | 'durbin-news') => void;
 }
 
 const LAYOUTS = [
@@ -20,6 +20,11 @@ const LAYOUTS = [
     name: 'Facebook Minimal',
     value: 'facebook-minimal' as const,
     description: 'Clean, typography-focused design'
+  },
+  {
+    name: 'Durbin News',
+    value: 'durbin-news' as const,
+    description: 'Bengali news layout with red background'
   }
 ];
 

@@ -5,13 +5,14 @@ export interface CardSettings {
   brandColor: string;
   format: 'png' | 'jpeg';
   quality?: number;
-  layout?: 'default' | 'facebook-modern' | 'facebook-minimal';
+  layout?: 'default' | 'facebook-modern' | 'facebook-minimal' | 'durbin-news';
 }
 
 export interface CardState {
   mainImage: string | null;
   logo: string | null;
   headline: string;
+  date?: string;
   settings: CardSettings;
 }
 
