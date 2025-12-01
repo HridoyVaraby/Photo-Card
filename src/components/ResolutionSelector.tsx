@@ -8,8 +8,11 @@ interface ResolutionSelectorProps {
 
 const RESOLUTIONS: ResolutionOption[] = [
   { name: 'Twitter Card', width: 1200, height: 628 },
+  { name: 'Facebook Post', width: 1200, height: 630 },
+  { name: 'Facebook Square', width: 1080, height: 1080 },
   { name: 'Instagram Square', width: 1080, height: 1080 },
   { name: 'Instagram Story', width: 1080, height: 1920 },
+  { name: 'Facebook Story', width: 1080, height: 1920 },
 ];
 
 export const ResolutionSelector: React.FC<ResolutionSelectorProps> = ({

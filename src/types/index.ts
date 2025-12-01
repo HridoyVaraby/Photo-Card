@@ -5,6 +5,7 @@ export interface CardSettings {
   brandColor: string;
   format: 'png' | 'jpeg';
   quality?: number;
+  layout?: 'default' | 'facebook-modern' | 'facebook-minimal';
 }
 
 export interface CardState {

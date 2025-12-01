@@ -9,8 +9,11 @@ A modern web application for creating branded news photo cards perfect for socia
 - **🎨 Brand Customization**: Choose colors, fonts, and layouts
 - **📱 Multiple Resolutions**:
   - Twitter Card (1200×628)
+  - Facebook Post (1200×630)
+  - Facebook Square (1080×1080)
   - Instagram Square (1080×1080)
   - Instagram Story (1080×1920)
+  - Facebook Story (1080×1920)
 - **📥 Export Options**: Download as PNG or JPEG with quality control
 - **🔤 Font Support**: Inter, Montserrat, Noto Sans Bengali, Hind Siliguri
 - **🎯 Live Preview**: Real-time canvas preview with DevicePixelRatio support
@@ -64,12 +67,13 @@ A modern web application for creating branded news photo cards perfect for socia
 ```
 src/
 ├── components/           # React components
-│   ├── UploadField.tsx  # File upload with drag & drop
-│   ├── CanvasPreview.tsx # Live canvas preview
-│   ├── Toolbar.tsx      # Main control panel
+│   ├── UploadField.tsx     # File upload with drag & drop
+│   ├── CanvasPreview.tsx   # Live canvas preview
+│   ├── Toolbar.tsx        # Main control panel
 │   ├── ResolutionSelector.tsx  # Resolution picker
-│   ├── FontSelector.tsx  # Font selection
-│   └── ColorPicker.tsx   # Color picker with presets
+│   ├── FontSelector.tsx    # Font selection
+│   ├── LayoutSelector.tsx   # Layout style selector
+│   └── ColorPicker.tsx     # Color picker with presets
 ├── hooks/               # Custom React hooks
 │   ├── useImage.ts      # Image loading and validation
 │   └── useCanvasRenderer.ts  # Canvas management
@@ -115,7 +119,7 @@ src/
 
 1. **Upload Images**:
    - Main image (required): Your news photo
-   - Logo (optional): Company logo for top-right placement
+   - Logo (optional): Company logo placement varies by layout
 
 2. **Add Headline**:
    - Enter your text (max 3 lines)
@@ -123,9 +127,15 @@ src/
 
 3. **Customize Design**:
    - Select resolution for target platform
+   - Choose layout style (Default, Facebook Modern, Facebook Minimal)
    - Choose font that supports your language
    - Pick brand color for headline bar
    - Set export format and quality
+
+4. **Facebook Layout Options**:
+   - **Default**: Classic layout with logo top-right, headline bar bottom
+   - **Facebook Modern**: Trendy design with logo top-left, semi-transparent overlay box
+   - **Facebook Minimal**: Clean typography-focused design with subtle branding
 
 4. **Export**:
    - Preview your card in real-time
@@ -145,6 +155,32 @@ src/
 - **DevicePixelRatio Support**: Crisp rendering on high-DPI displays
 - **Debounced Rendering**: Optimized canvas updates
 - **Lazy Loading**: Font loading via Google Fonts
+
+## Facebook Post Specifications
+
+### Supported Facebook Formats
+- **Facebook Post**: 1200×630 (standard link preview)
+- **Facebook Square**: 1080×1080 (ideal for timeline posts)
+- **Facebook Story**: 1080×1920 (full-screen stories)
+
+### Facebook Layout Styles
+1. **Default Layout**
+   - Logo positioned top-right (14% of canvas width)
+   - Headline bar at bottom (25% of canvas height)
+   - 90% opacity brand color overlay
+   - White text with shadow for contrast
+
+2. **Facebook Modern Layout**
+   - Logo positioned top-left with rounded background
+   - Semi-transparent overlay box (30% of canvas height)
+   - Gradient background for depth
+   - Professional, trendy appearance
+
+3. **Facebook Minimal Layout**
+   - Small logo (8% of canvas width) in top-right
+   - Thin headline bar (15% of canvas height)
+   - Gradient from 93% to 100% opacity
+   - Clean, typography-focused design
 
 ## File Naming Convention
 

@@ -4,6 +4,7 @@ import { UploadField } from './UploadField';
 import { ResolutionSelector } from './ResolutionSelector';
 import { FontSelector } from './FontSelector';
 import { ColorPicker } from './ColorPicker';
+import { LayoutSelector } from './LayoutSelector';
 
 interface ToolbarProps {
   state: CardState;
@@ -70,6 +71,15 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       settings: {
         ...state.settings,
         brandColor
+      }
+    });
+  };
+
+  const handleLayoutChange = (layout: 'default' | 'facebook-modern' | 'facebook-minimal') => {
+    onStateChange({
+      settings: {
+        ...state.settings,
+        layout
       }
     });
   };
@@ -152,6 +162,11 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           <FontSelector
             value={state.settings.font}
             onChange={handleFontChange}
+          />
+
+          <LayoutSelector
+            value={state.settings.layout || 'default'}
+            onChange={handleLayoutChange}
           />
 
           <ColorPicker
