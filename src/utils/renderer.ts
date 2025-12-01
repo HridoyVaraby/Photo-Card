@@ -228,11 +228,10 @@ const drawFacebookMinimalLayout = (
   state: CardState,
   width: number,
   height: number,
-  _padding: number,
-  _logoSize: number
+  padding: number,
+  logoSize: number
 ): void => {
   // Facebook minimal layout: clean typography with subtle branding
-  const padding = 32;
   if (state.logo) {
     const logoImg = new Image();
     logoImg.onload = () => {
@@ -247,12 +246,12 @@ const drawFacebookMinimalLayout = (
       ctx.globalAlpha = 1.0;
 
       // Draw minimalist headline bar
-      drawMinimalistHeadlineBar(ctx, state, width, height, padding);
+      drawMinimalistHeadlineBar(ctx, state, width, height, padding, logoSize);
     };
     logoImg.src = state.logo;
   } else {
     // Draw headline bar immediately if no logo
-    drawMinimalistHeadlineBar(ctx, state, width, height, padding);
+    drawMinimalistHeadlineBar(ctx, state, width, height, padding, logoSize);
   }
 };
 
@@ -320,7 +319,8 @@ const drawMinimalistHeadlineBar = (
   state: CardState,
   width: number,
   height: number,
-  padding: number
+  padding: number,
+  _logoSize: number
 ): void => {
   const barHeight = Math.floor(height * 0.15); // 15% for minimal look
   const barY = height - barHeight;
@@ -458,10 +458,10 @@ const drawDurbinNewsLayout = (
       const imgAspect = imgImg.width / imgImg.height;
       const containerAspect = imgWidth / imgHeight;
 
-      let drawWidth = imgWidth;
-      let drawHeight = imgHeight;
-      let drawX = imgX;
-      let drawY = imgY;
+      const drawWidth = imgWidth;
+      const drawHeight = imgHeight;
+      const drawX = imgX;
+      const drawY = imgY;
       let sourceX = 0;
       let sourceY = 0;
       let sourceWidth = imgImg.width;
