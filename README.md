@@ -62,6 +62,96 @@ A modern web application for creating branded news photo cards perfect for socia
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
 
+## Docker Deployment
+
+### Quick Start with Docker
+
+The easiest way to deploy this application is using Docker and Docker Compose.
+
+#### Prerequisites
+- Docker and Docker Compose installed on your system
+
+#### Option 1: Simple Deployment
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd photo-card
+
+# Build and start the application
+docker-compose up --build
+
+# Access the application
+# Open http://localhost:3000 in your browser
+```
+
+#### Option 2: Production Deployment with Reverse Proxy
+
+```bash
+# Deploy with Traefik reverse proxy (recommended for production)
+docker-compose --profile with-reverse-proxy up --build
+
+# Application available at http://localhost
+# Traefik dashboard at http://localhost:8080
+```
+
+#### Docker Commands
+
+```bash
+# Build only
+docker build -t photo-card-generator .
+
+# Run with custom port
+docker run -p 8080:80 photo-card-generator
+
+# View logs
+docker-compose logs -f
+
+# Stop all services
+docker-compose down
+
+# Remove images (cleanup)
+docker system prune -a
+```
+
+### Docker Configuration
+
+The Docker setup includes:
+
+- **Multi-stage build**: Optimized for production with Nginx
+- **Security**: Non-root user, security headers, health checks
+- **Performance**: Gzip compression, static asset caching
+- **Monitoring**: Health checks and logging
+- **Reverse Proxy**: Optional Traefik setup for production
+
+### Container Details
+
+- **Base Image**: Nginx Alpine (lightweight)
+- **Port**: 80 (mapped to 3000 on host)
+- **Health Check**: `/health` endpoint
+- **User**: Non-root user (nextjs:1001)
+- **File Size**: ~200MB total image size
+
+### Production Considerations
+
+For production deployment, consider:
+
+1. **Environment Variables**: Set `NODE_ENV=production`
+2. **SSL/TLS**: Use the Traefik profile for HTTPS
+3. **Monitoring**: Health checks are built-in
+4. **Scaling**: Can be easily scaled with Docker Swarm or Kubernetes
+5. **Backup**: No database needed - stateless application
+
+### Docker Development
+
+```bash
+# Development with live reload
+docker-compose -f docker-compose.dev.yml up
+
+# Production build test
+docker-compose -f docker-compose.prod.yml up --build
+```
+
 ## Project Structure
 
 ```

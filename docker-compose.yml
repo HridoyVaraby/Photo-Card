@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  photo-card-app:
+    build: .
+    container_name: photo-card-generator
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.photo-card.rule=Host(`localhost`)"
+      - "traefik.http.services.photo-card.loadbalancer.server.port=80"
+    networks:
+      - photo-card-network
+
+  # Optional: Add reverse proxy with Traefik for production use
+  traefik:
+    image: traefik:v3.0
+    container_name: photo-card-traefik
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"  # Traefik dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/traefik.yml:ro
+    restart: unless-stopped
+    networks:
+      - photo-card-network
+    profiles:
+      - with-reverse-proxy
+
+networks:
+  photo-card-network:
+    driver: bridge
+
+volumes:
+  traefik-ssl-certs:
