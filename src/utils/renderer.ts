@@ -11,7 +11,7 @@ export const wrapText = (
 
   for (let i = 1; i < words.length; i++) {
     const word = words[i];
-    const width = ctx.measureText(currentLine + ' ' + word).width;
+    const width = ctx.measureText(currentLne + ' ' + word).width;
 
     if (width < maxWidth) {
       currentLine += ' ' + word;
