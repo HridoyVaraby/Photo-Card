@@ -51,6 +51,20 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     onStateChange({ date });
   };
 
+  const handleBackgroundImageSelect = (file: File | null) => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        onStateChange({
+          backgroundImage: e.target?.result as string
+        });
+      };
+      reader.readAsDataURL(file);
+    } else {
+      onStateChange({ backgroundImage: null });
+    }
+  };
+
   const handleResolutionChange = (resolution: ResolutionOption) => {
     onStateChange({
       settings: {
@@ -170,6 +184,13 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               Enter date in Bengali format for news layout.
             </p>
           </div>
+
+          <UploadField
+            label="Background Image (Durbin News Only)"
+            value={state.backgroundImage || null}
+            onFileSelect={handleBackgroundImageSelect}
+            placeholder="Upload a custom background for Durbin News layout"
+          />
         </div>
       </div>
 

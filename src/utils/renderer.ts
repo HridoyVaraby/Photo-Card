@@ -446,9 +446,44 @@ async function drawDurbinNewsLayout(
   _padding: number,
   _logoSize: number
 ): Promise<void> {
-  // Draw red background
-  ctx.fillStyle = '#8B1538'; // Deep red color
-  ctx.fillRect(0, 0, width, height);
+  // Draw background - prioritize backgroundImage > brandColor > default red
+  if (state.backgroundImage) {
+    try {
+      const bgImg = await loadImage(state.backgroundImage);
+
+      // Calculate cover scaling for background
+      const bgAspect = bgImg.width / bgImg.height;
+      const canvasAspect = width / height;
+
+      let drawWidth = width;
+      let drawHeight = height;
+      let drawX = 0;
+      let drawY = 0;
+
+      if (bgAspect > canvasAspect) {
+        // Image is wider - fit height
+        drawHeight = height;
+        drawWidth = height * bgAspect;
+        drawX = (width - drawWidth) / 2;
+      } else {
+        // Image is taller - fit width
+        drawWidth = width;
+        drawHeight = width / bgAspect;
+        drawY = (height - drawHeight) / 2;
+      }
+
+      ctx.drawImage(bgImg, drawX, drawY, drawWidth, drawHeight);
+    } catch (error) {
+      console.error('Failed to load background image:', error);
+      // Fallback to brand color
+      ctx.fillStyle = state.settings.brandColor || '#8B1538';
+      ctx.fillRect(0, 0, width, height);
+    }
+  } else {
+    // Use brand color or default red
+    ctx.fillStyle = state.settings.brandColor || '#8B1538';
+    ctx.fillRect(0, 0, width, height);
+  }
 
   // Dynamic sizing based on percentages
   const headerHeight = height * 0.28; // 28% for header

@@ -13,6 +13,7 @@ export interface CardState {
   logo: string | null;
   headline: string;
   date?: string;
+  backgroundImage?: string | null;
   settings: CardSettings;
 }
 
