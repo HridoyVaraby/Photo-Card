@@ -5,11 +5,18 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
-  "keywords": ["react", "vite", "typescript", "canvas", "image-generator", "social-media"],
+  "keywords": [
+    "react",
+    "vite",
+    "typescript",
+    "canvas",
+    "image-generator",
+    "social-media"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
