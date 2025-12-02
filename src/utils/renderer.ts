@@ -518,7 +518,7 @@ async function drawDurbinNewsElements(
   headerHeight: number,
   footerHeight: number
 ): Promise<void> {
-  const fontFamily = "'Noto Sans Bengali', 'Hind Siliguri', 'Arial', sans-serif";
+  const fontFamily = state.settings.font ? `'${state.settings.font}', sans-serif` : "'Noto Sans Bengali', 'Hind Siliguri', 'Arial', sans-serif";
 
   // --- LOGO (Top Left) ---
   if (state.logo) {

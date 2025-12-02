@@ -11,6 +11,7 @@ const FONTS: FontOption[] = [
   { name: 'Montserrat', value: 'Montserrat', family: 'Montserrat, sans-serif' },
   { name: 'Noto Sans Bengali', value: 'Noto Sans Bengali', family: 'Noto Sans Bengali, sans-serif' },
   { name: 'Hind Siliguri', value: 'Hind Siliguri', family: 'Hind Siliguri, sans-serif' },
+  { name: 'Tiro Bangla', value: 'Tiro Bangla', family: 'Tiro Bangla, serif' },
 ];
 
 export const FontSelector: React.FC<FontSelectorProps> = ({
