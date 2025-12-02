@@ -12,8 +12,3 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-
-volumes:
-  # Optional: If you need persistent logs or data
-  # nginx-logs:
-  #   driver: local

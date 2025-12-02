@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm install
 
 # Copy source code
 COPY . .
@@ -19,21 +19,22 @@ RUN npx vite build
 # Production stage
 FROM node:18-alpine
 
-# Copy built files from builder stage
-COPY --from=builder /app/dist /app
+WORKDIR /app
 
-# Create non-root user for security
-RUN addgroup -g node && adduser -g node -G node -s /bin/sh
+COPY package*.json ./
+
+RUN npm install --only=production
+
+# Copy built files from builder stage
+COPY --from=builder /app/dist .
+
 USER node
 
-# Expose port 3000 (Vite default)
+# Expose port 3000
 EXPOSE 3000
 
 # Set environment to production
 ENV NODE_ENV=production
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 CMD node -e "require('http').createServer((req, res) => { res.writeHead(200, { 'Content-Type': 'text/plain' }); res.end('healthy'); }).listen(3000)" || exit 1
-
 # Start the application
-CMD ["npm", "start"]
+CMD ["npx", "serve", "-s", ".", "-l", "3000"]
