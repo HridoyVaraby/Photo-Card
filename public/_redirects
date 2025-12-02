@@ -1,0 +1,25 @@
+# Netlify redirects file
+# Format: [source path] [destination path] [Status] [Conditions]
+
+# Force HTTPS (default behavior, but explicit)
+https://khaloyer.news/* https://khaloyer.news/:splat 301
+
+# Handle potential old routes or common variations
+/news https://khaloyer.news/ 301
+/home https://khaloyer.news/ 301
+
+# API fallback (if we add API routes later)
+/api/* https://khaloyer.news/api/:splat 200
+
+# Redirect common file extensions that might be requested
+/index.html https://khaloyer.news/ 301
+/sitemap.xml https://khaloyer.news/sitemap.xml 200
+/robots.txt https://khaloyer.news/robots.txt 200
+
+# Social media and sharing redirects
+/facebook https://khaloyer.news/ 301
+/instagram https://khaloyer.news/ 301
+/twitter https://khaloyer.news/ 301
+
+# Custom 404 page (will use Netlify's default, but keeping as reference)
+/* https://khaloyer.news/404.html 404

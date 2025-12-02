@@ -1,0 +1,54 @@
+# News Photo Card Generator - robots.txt
+# Allow all web crawlers to access the site
+
+User-agent: *
+Allow: /
+
+# Allow common search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+# Block unwanted crawlers
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+# Block AI scrapers that might abuse the service
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+# Allow access to assets
+Allow: /assets/
+Allow: /news-card-icon.svg
+
+# Sitemap location
+Sitemap: https://khaloyer.news/sitemap.xml
+
+# Crawl delay (optional - be respectful)
+Crawl-delay: 1
