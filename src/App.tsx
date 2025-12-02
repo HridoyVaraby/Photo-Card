@@ -1,24 +1,24 @@
-import { useState, useCallback } from 'react';
-import { CardState } from './types';
-import { Toolbar } from './components/Toolbar';
-import { CanvasPreview } from './components/CanvasPreview';
-import { renderCard } from './utils/renderer';
-import { exportAndDownload } from './utils/exportUtils';
+import { useState, useCallback } from "react";
+import { CardState } from "./types";
+import { Toolbar } from "./components/Toolbar";
+import { CanvasPreview } from "./components/CanvasPreview";
+import { renderCard } from "./utils/renderer";
+import { exportAndDownload } from "./utils/exportUtils";
 
 const initialState: CardState = {
   mainImage: null,
   logo: null,
-  headline: '',
-  date: '৩০ নভেম্বর, ২০২৫',
+  headline: "",
+  date: "৩০ নভেম্বর, ২০২৫",
   settings: {
-    width: 1200,
-    height: 628,
-    font: 'Inter',
-    brandColor: '#8B1538',
-    format: 'png',
+    width: 1080,
+    height: 1080,
+    font: "Tiro Bangla",
+    brandColor: "#8B1538",
+    format: "png",
     quality: 90,
-    layout: 'durbin-news'
-  }
+    layout: "durbin-news",
+  },
 };
 
 function App() {
@@ -26,15 +26,15 @@ function App() {
   const [isExporting, setIsExporting] = useState(false);
 
   const handleStateChange = useCallback((updates: Partial<CardState>) => {
-    setState(prevState => ({
+    setState((prevState) => ({
       ...prevState,
-      ...updates
+      ...updates,
     }));
   }, []);
 
   const handleExport = useCallback(async () => {
     if (!state.mainImage || !state.headline.trim()) {
-      alert('Please add an image and headline before exporting.');
+      alert("Please add an image and headline before exporting.");
       return;
     }
 
@@ -42,7 +42,7 @@ function App() {
 
     try {
       // Create a temporary canvas for export
-      const canvas = document.createElement('canvas');
+      const canvas = document.createElement("canvas");
       canvas.width = state.settings.width;
       canvas.height = state.settings.height;
 
@@ -56,26 +56,29 @@ function App() {
             if (blob) {
               resolve(blob);
             } else {
-              reject(new Error('Failed to create blob'));
+              reject(new Error("Failed to create blob"));
             }
           },
           `image/${state.settings.format}`,
-          state.settings.format === 'jpeg' ? (state.settings.quality || 90) / 100 : undefined
+          state.settings.format === "jpeg"
+            ? (state.settings.quality || 90) / 100
+            : undefined,
         );
       });
 
       // Download the file
       await exportAndDownload(blob, state.headline, state.settings.format);
-
     } catch (error) {
-      console.error('Export failed:', error);
-      alert(`Export failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error("Export failed:", error);
+      alert(
+        `Export failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     } finally {
       setIsExporting(false);
     }
   }, [state]);
 
-  const isReadyToExport = state.mainImage && state.headline.trim() !== '';
+  const isReadyToExport = state.mainImage && state.headline.trim() !== "";
 
   return (
     <div className="min-h-screen bg-gray-100 font-inter">
@@ -97,11 +100,14 @@ function App() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <div className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors duration-200 ${isReadyToExport
-                  ? 'bg-green-100 text-green-700 border border-green-200'
-                  : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
-                }`}>
-                {isReadyToExport ? '✓ Ready to Export' : '⚠ Missing Content'}
+              <div
+                className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors duration-200 ${
+                  isReadyToExport
+                    ? "bg-green-100 text-green-700 border border-green-200"
+                    : "bg-yellow-50 text-yellow-700 border border-yellow-200"
+                }`}
+              >
+                {isReadyToExport ? "✓ Ready to Export" : "⚠ Missing Content"}
               </div>
             </div>
           </div>
@@ -113,10 +119,7 @@ function App() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Column - Controls */}
           <div className="lg:col-span-5 space-y-6">
-            <Toolbar
-              state={state}
-              onStateChange={handleStateChange}
-            />
+            <Toolbar state={state} onStateChange={handleStateChange} />
           </div>
 
           {/* Right Column - Preview */}
@@ -140,15 +143,19 @@ function App() {
 
               {/* Quick Tips */}
               <div className="mt-6 bg-blue-50 rounded-xl p-6 border border-blue-100">
-                <h3 className="text-sm font-semibold text-blue-900 mb-3">Pro Tips</h3>
+                <h3 className="text-sm font-semibold text-blue-900 mb-3">
+                  Pro Tips
+                </h3>
                 <ul className="space-y-2 text-sm text-blue-800">
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    Use high-resolution images (at least 1200px wide) for best results.
+                    Use high-resolution images (at least 1200px wide) for best
+                    results.
                   </li>
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    Keep headlines concise (under 3 lines) for maximum readability.
+                    Keep headlines concise (under 3 lines) for maximum
+                    readability.
                   </li>
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
@@ -165,7 +172,10 @@ function App() {
       <footer className="bg-white border-t border-gray-200 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-sm text-gray-500">
-            <p>© {new Date().getFullYear()} News Photo Card Generator. All rights reserved.</p>
+            <p>
+              © {new Date().getFullYear()} News Photo Card Generator. All rights
+              reserved.
+            </p>
           </div>
         </div>
       </footer>
