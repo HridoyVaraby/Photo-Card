@@ -1,0 +1,7 @@
+
+> news-photo-card-generator@1.0.0 build
+> tsc && vite build
+
+src/utils/renderer.ts(518,3): error TS6133: 'padding' is declared but its value is never read.
+src/utils/renderer.ts(519,3): error TS6133: 'logoSize' is declared but its value is never read.
+src/utils/renderer.ts(581,9): error TS6133: 'dateMetrics' is declared but its value is never read.

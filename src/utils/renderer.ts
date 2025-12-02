@@ -100,7 +100,7 @@ export const renderCard = async (
     if (state.mainImage) {
       try {
         const bgImg = await loadImage(state.mainImage);
-        
+
         // Calculate cover scaling
         const imgAspect = bgImg.width / bgImg.height;
         const canvasAspect = width / height;
@@ -134,7 +134,7 @@ export const renderCard = async (
       ctx.fillStyle = '#f3f4f6';
       ctx.fillRect(0, 0, width, height);
     }
-    
+
     // Continue with other elements after background is drawn
     await drawOverlayElements(ctx, state, width, height);
   }
@@ -179,7 +179,7 @@ const drawDefaultLayout = async (
   if (state.logo) {
     try {
       const logoImg = await loadImage(state.logo);
-      
+
       // Draw logo in top-right with padding
       const logoX = width - logoSize - padding;
       const logoY = padding;
@@ -213,7 +213,7 @@ const drawFacebookModernLayout = async (
   if (state.logo) {
     try {
       const logoImg = await loadImage(state.logo);
-      
+
       // Draw logo in top-left
       const logoX = padding;
       const logoY = padding;
@@ -247,7 +247,7 @@ const drawFacebookMinimalLayout = async (
   if (state.logo) {
     try {
       const logoImg = await loadImage(state.logo);
-      
+
       // Small logo in top-right corner
       const smallLogoSize = Math.floor(width * 0.08);
       const logoX = width - smallLogoSize - padding;
@@ -438,175 +438,223 @@ const drawHeadlineBar = (
   }
 };
 
-const drawDurbinNewsLayout = async (
+async function drawDurbinNewsLayout(
   ctx: CanvasRenderingContext2D,
   state: CardState,
   width: number,
   height: number,
-  padding: number,
-  logoSize: number
-): Promise<void> => {
+  _padding: number,
+  _logoSize: number
+): Promise<void> {
   // Draw red background
-  ctx.fillStyle = '#8B1538'; // Deep red color matching the screenshot
+  ctx.fillStyle = '#8B1538'; // Deep red color
   ctx.fillRect(0, 0, width, height);
 
-  // Calculate image dimensions - centered with margins
-  const imgMargin = 80;
+  // Dynamic sizing based on percentages
+  const headerHeight = height * 0.28; // 28% for header
+  const footerHeight = height * 0.20; // 20% for footer
+  const imageAreaHeight = height - headerHeight - footerHeight;
+
+  // Image dimensions
+  const imgMargin = width * 0.05; // 5% margin
   const imgWidth = width - (imgMargin * 2);
-  const imgHeight = Math.floor(height * 0.55); // 55% of canvas height
+  // Calculate max image height that fits in the middle area
+  const maxImgHeight = imageAreaHeight * 0.95; // Use 95% of available space
+
   const imgX = imgMargin;
-  const imgY = 160; // Position below header area
+  // Center image vertically in the available space between header and footer
+  const imgY = headerHeight + (imageAreaHeight - maxImgHeight) / 2;
+  const imgHeight = maxImgHeight;
 
   // Draw white border around image
+  const borderSize = Math.max(4, width * 0.005);
   ctx.fillStyle = '#ffffff';
-  ctx.fillRect(imgX - 8, imgY - 8, imgWidth + 16, imgHeight + 16);
+  ctx.fillRect(imgX - borderSize, imgY - borderSize, imgWidth + (borderSize * 2), imgHeight + (borderSize * 2));
 
-  // Draw main image in center with border (FIXED: Use cover scaling to fill full space)
+  // Draw main image
   if (state.mainImage) {
     try {
       const imgImg = await loadImage(state.mainImage);
-      
-      // Calculate aspect ratio and use cover scaling (fill entire space)
+
+      // Calculate aspect ratio and use cover scaling
       const imgAspect = imgImg.width / imgImg.height;
       const containerAspect = imgWidth / imgHeight;
 
-      const drawWidth = imgWidth;
-      const drawHeight = imgHeight;
-      const drawX = imgX;
-      const drawY = imgY;
       let sourceX = 0;
       let sourceY = 0;
       let sourceWidth = imgImg.width;
       let sourceHeight = imgImg.height;
 
       if (imgAspect > containerAspect) {
-        // Image is wider - crop sides to fit height
+        // Image is wider - crop sides
         sourceWidth = imgImg.height * containerAspect;
         sourceX = (imgImg.width - sourceWidth) / 2;
       } else {
-        // Image is taller - crop top/bottom to fit width
+        // Image is taller - crop top/bottom
         sourceHeight = imgImg.width / containerAspect;
         sourceY = (imgImg.height - sourceHeight) / 2;
       }
 
-      ctx.drawImage(imgImg, sourceX, sourceY, sourceWidth, sourceHeight, drawX, drawY, drawWidth, drawHeight);
+      ctx.drawImage(imgImg, sourceX, sourceY, sourceWidth, sourceHeight, imgX, imgY, imgWidth, imgHeight);
     } catch (error) {
       console.error('Failed to load main image:', error);
-      // Draw placeholder
       ctx.fillStyle = '#f3f4f6';
       ctx.fillRect(imgX, imgY, imgWidth, imgHeight);
     }
   } else {
-    // Draw placeholder
     ctx.fillStyle = '#f3f4f6';
     ctx.fillRect(imgX, imgY, imgWidth, imgHeight);
   }
 
-  // Draw other elements immediately
-  await drawDurbinNewsElements(ctx, state, width, height, padding, logoSize);
-};
+  // Draw other elements
+  await drawDurbinNewsElements(ctx, state, width, height, headerHeight, footerHeight);
+}
 
-const drawDurbinNewsElements = async (
+async function drawDurbinNewsElements(
   ctx: CanvasRenderingContext2D,
   state: CardState,
   width: number,
   height: number,
-  padding: number,
-  logoSize: number
-): Promise<void> => {
-  // Draw DURBIN NEWS logo in top-left (FIXED: Proper size, contained in header area)
+  headerHeight: number,
+  footerHeight: number
+): Promise<void> {
+  const fontFamily = "'Noto Sans Bengali', 'Hind Siliguri', 'Arial', sans-serif";
+
+  // --- LOGO (Top Left) ---
   if (state.logo) {
     try {
       const logoImg = await loadImage(state.logo);
-      
-      const logoX = padding + 20;
-      const logoY = padding + 20;
-      // Keep logo contained within header area (before image starts at y=160)
-      const maxLogoHeight = 120; // Max height to stay above image area
-      const logoWidth = logoSize * 1.8; // Reasonable width
-      const logoHeight = Math.min(logoSize * 0.8, maxLogoHeight); // Constrain height
 
-      ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
+      const logoPadding = width * 0.03;
+      const logoX = logoPadding;
+      const logoY = logoPadding;
+
+      // Constrain logo to fit within header height with some padding
+      const maxLogoHeight = headerHeight * 0.7;
+      const maxLogoWidth = width * 0.4; // Max 40% of width
+
+      let drawLogoWidth = logoImg.width;
+      let drawLogoHeight = logoImg.height;
+
+      // Scale down if too tall
+      if (drawLogoHeight > maxLogoHeight) {
+        const scale = maxLogoHeight / drawLogoHeight;
+        drawLogoHeight = maxLogoHeight;
+        drawLogoWidth = drawLogoWidth * scale;
+      }
+
+      // Scale down if too wide (after height check)
+      if (drawLogoWidth > maxLogoWidth) {
+        const scale = maxLogoWidth / drawLogoWidth;
+        drawLogoWidth = maxLogoWidth;
+        drawLogoHeight = drawLogoHeight * scale;
+      }
+
+      ctx.drawImage(logoImg, logoX, logoY, drawLogoWidth, drawLogoHeight);
     } catch (error) {
       console.error('Failed to load logo:', error);
     }
   } else {
-    // Draw text logo if no image provided (contained size)
+    // Text logo fallback
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 32px Arial';
+    ctx.font = `bold ${Math.floor(width * 0.05)}px ${fontFamily}`;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
-    ctx.fillText('DURBIN', padding + 20, padding + 20);
-    ctx.fillText('NEWS', padding + 20, padding + 55);
+    ctx.fillText('DURBIN', width * 0.03, width * 0.03);
+    ctx.fillText('NEWS', width * 0.03, width * 0.08);
   }
 
-  // Draw date in top-right (Bengali style) - aligned with logo height
+  // --- DATE & BADGE (Top Right) ---
+  const topPadding = width * 0.03;
+  const rightPadding = width * 0.03;
+
+  // 1. Date (Top Right)
   const dateText = state.date || '৩০ নভেম্বর, ২০২৫';
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 24px Arial';
+  const dateFontSize = Math.floor(width * 0.035); // Responsive font size
+  ctx.font = `bold ${dateFontSize}px ${fontFamily}`;
   ctx.textAlign = 'right';
   ctx.textBaseline = 'top';
-  
-  // Draw date background - aligned with logo position
-  const dateWidth = ctx.measureText(dateText).width + 20;
-  const dateHeight = 40;
-  const dateX = width - dateWidth - padding;
-  const dateY = padding + 20; // Same Y position as logo
-  
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-  ctx.fillRect(dateX - 10, dateY - 5, dateWidth + 20, dateHeight);
-  
-  // Draw date text
-  ctx.fillStyle = '#000000';
-  ctx.fillText(dateText, width - padding - 10, padding + 30);
 
-  // Draw additional text - positioned below date, staying in header area
+  // Measure date width
+  const dateHeight = dateFontSize * 1.2;
+
+  // Draw Date Text
   ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 18px Arial';
-  ctx.textAlign = 'right';
-  ctx.fillText('সর্বশেষ সংবাদ', width - padding - 10, padding + 75);
+  ctx.fillText(dateText, width - rightPadding, topPadding);
 
-  // Draw headline at bottom (FIXED: Use brand color for background)
+  // 2. "Latest News" Badge (Below Date)
+  const badgeText = 'সর্বশেষ সংবাদ';
+  const badgeFontSize = Math.floor(width * 0.03);
+  ctx.font = `bold ${badgeFontSize}px ${fontFamily}`;
+  const badgeMetrics = ctx.measureText(badgeText);
+  const badgePaddingX = badgeFontSize * 0.8;
+  const badgePaddingY = badgeFontSize * 0.4;
+  const badgeWidth = badgeMetrics.width + (badgePaddingX * 2);
+  const badgeHeight = badgeFontSize + (badgePaddingY * 2);
+
+  const badgeX = width - rightPadding - badgeWidth;
+  const badgeY = topPadding + dateHeight + (width * 0.01); // Spacing below date
+
+  // Badge Background (White)
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(badgeX, badgeY, badgeWidth, badgeHeight);
+
+  // Badge Text (Red)
+  ctx.fillStyle = '#8B1538';
+  ctx.textAlign = 'left'; // Reset alignment for badge text drawing
+  ctx.textBaseline = 'middle';
+  ctx.fillText(badgeText, badgeX + badgePaddingX, badgeY + (badgeHeight / 2));
+
+
+  // --- HEADLINE (Bottom) ---
   if (state.headline) {
-    const headlineY = height - 120;
-    const headlineHeight = 100;
-    
-    // Draw headline background using brand color
-    ctx.fillStyle = state.settings.brandColor;
-    ctx.fillRect(0, headlineY, width, headlineHeight);
-    
+    const headlineY = height - footerHeight;
+
+    // Headline Background (Brand Color - already drawn as main background, but we can darken it or add gradient if needed)
+    // For now, we rely on the main red background.
+
     // Setup headline text
-    ctx.fillStyle = '#FFD700'; // Gold color for text
-    ctx.font = 'bold 42px Arial';
+    ctx.fillStyle = '#FFD700'; // Gold color
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
     ctx.shadowBlur = 4;
     ctx.shadowOffsetX = 2;
     ctx.shadowOffsetY = 2;
 
-    // Wrap text for headline
-    const headlineMaxWidth = width - (padding * 2);
-    const lines = wrapText(ctx, state.headline, headlineMaxWidth);
-    
-    // Calculate font size
-    const fontSize = calculateFontSize(
-      ctx,
-      state.headline,
-      headlineMaxWidth,
-      48,
-      24
-    );
+    const headlinePadding = width * 0.05;
+    const headlineMaxWidth = width - (headlinePadding * 2);
 
-    ctx.font = `bold ${fontSize}px Arial`;
+    // Calculate optimal font size to fit text in footer area
+    // Max 3 lines
+    const maxFontSize = Math.floor(footerHeight * 0.4);
+    const minFontSize = Math.floor(footerHeight * 0.15);
 
-    // Draw each line centered
-    const lineHeight = fontSize * 1.2;
-    const totalHeight = lines.length * lineHeight;
-    const startY = headlineY + (headlineHeight / 2) - (totalHeight / 2) + (fontSize / 2);
+    // Wrap text
+    ctx.font = `bold ${maxFontSize}px ${fontFamily}`;
+    let lines = wrapText(ctx, state.headline, headlineMaxWidth);
+    let fontSize = maxFontSize;
+
+    // Reduce font size if too many lines or text too wide
+    // We want to fit within footerHeight with some padding
+    const maxTextHeight = footerHeight * 0.8;
+
+    while (
+      (lines.length * fontSize * 1.3 > maxTextHeight || lines.length > 3) &&
+      fontSize > minFontSize
+    ) {
+      fontSize -= 2;
+      ctx.font = `bold ${fontSize}px ${fontFamily}`;
+      lines = wrapText(ctx, state.headline, headlineMaxWidth);
+    }
+
+    // Draw lines
+    const lineHeight = fontSize * 1.3;
+    const totalTextHeight = lines.length * lineHeight;
+    const startY = headlineY + (footerHeight / 2) - (totalTextHeight / 2) + (fontSize / 2);
 
     lines.forEach((line, index) => {
       ctx.fillText(line, width / 2, startY + (index * lineHeight));
     });
   }
-};
+}
