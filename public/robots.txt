@@ -50,5 +50,8 @@ Allow: /news-card-icon.svg
 # Sitemap location
 Sitemap: https://khaloyer.news/sitemap.xml
 
+# LLM-friendly content reference
+Sitemap: https://khaloyer.news/llms.txt
+
 # Crawl delay (optional - be respectful)
 Crawl-delay: 1

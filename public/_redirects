@@ -15,6 +15,7 @@ https://khaloyer.news/* https://khaloyer.news/:splat 301
 /index.html https://khaloyer.news/ 301
 /sitemap.xml https://khaloyer.news/sitemap.xml 200
 /robots.txt https://khaloyer.news/robots.txt 200
+/llms.txt https://khaloyer.news/llms.txt 200
 
 # Social media and sharing redirects
 /facebook https://khaloyer.news/ 301

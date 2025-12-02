@@ -1,0 +1,44 @@
+# News Photo Card Generator
+
+A web-based tool for creating professional news photo cards for social media platforms. Users can upload images, add headlines, customize layouts, and download branded content.
+
+## More Information
+
+Visit our website: https://khaloyer.news
+
+## Sections
+
+### Features
+- Multi-layout support (Durbin News, Facebook Modern, Facebook Minimal, Default)
+- Custom branding with color and logo options
+- Multiple export formats (PNG, JPEG)
+- Responsive design with device pixel ratio support
+- Real-time canvas preview
+- Bengali and English font support
+
+### Technical Details
+- Built with: React, TypeScript, Vite
+- Canvas API based rendering
+- Client-side processing (no backend required)
+- Tailwind CSS for styling
+- Responsive design for social media formats
+
+### Use Cases
+- News organizations creating social media content
+- Media professionals generating branded graphics
+- Social media managers creating consistent visual content
+- Content creators producing news-style photo cards
+
+### Contact
+For support and inquiries, visit our main website or repository.
+
+## Optional
+
+### Data Sources
+This tool processes user-uploaded images and text inputs. No external data sources are used.
+
+### Privacy
+User content is processed locally in the browser. Images are converted to base64 for canvas rendering and are not uploaded to external servers except for final export which is downloaded to the user's device.
+
+### Terms of Service
+Content generated should comply with copyright and trademark laws. Users are responsible for ensuring they have rights to use uploaded images and text content.
