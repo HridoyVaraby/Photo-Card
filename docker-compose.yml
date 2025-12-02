@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   app:
@@ -8,16 +8,10 @@ services:
     image: news-photo-card-generator:latest
     container_name: news-photo-card-app
     ports:
-      - "80:80"
-    networks:
-      - dokploy-network
+      - "3000:3000"
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-
-networks:
-  dokploy-network:
-    external: true
 
 volumes:
   # Optional: If you need persistent logs or data

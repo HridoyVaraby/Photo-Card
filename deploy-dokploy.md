@@ -1,6 +1,6 @@
 # Deployment using Dokploy
 
-This guide explains how to deploy the News Photo Card Generator using Dokploy with Docker Compose.
+This guide explains how to deploy the News Photo Card Generator using Dokploy with Docker Compose and native dokploy routing.
 
 ## Prerequisites
 
@@ -42,29 +42,19 @@ docker-compose push dokploy/app
 ## Configuration Files
 
 ### docker-compose.yml
-- **Multi-stage build**: Node.js builder + nginx production
-- **Optimized for**: Static SPA serving with gzip compression
-- **Security headers**: XSS protection, content type options
-- **Dokploy network**: External network for proper isolation
-- **Port mapping**: 80:80 for web access
+- **Single service**: app service using Node.js 18 Alpine
+- **Port mapping**: 3000:3000 (internal port)
+- **Environment**: Production ready with NODE_ENV=production
+- **Dokploy routing**: Uses dokploy's native load balancer and routing
+- **Health checks**: Built-in container health monitoring
+- **Optimized for**: Direct app serving with dokploy's proxy system
 
 ### Dockerfile
-- **Base image**: `node:18-alpine` for building
-- **Production image**: `nginx:alpine` for serving
-- **Multi-stage**: Reduces final image size
-- **Static assets**: Served from `/usr/share/nginx/html`
-
-### nginx.conf
-- **SPA routing**: Fallback to index.html for client-side routing
-- **Asset caching**: 1-year cache for static assets
-- **Compression**: Gzip enabled for text-based assets
-- **Security**: Modern security headers
-
-## Environment Variables
-
-```bash
-NODE_ENV=production
-```
+- **Base image**: `node:18-alpine` for development and production
+- **Multi-stage build**: Optimizes final image size
+- **Security**: Non-root user for container security
+- **Health check**: Built-in application health monitoring
+- **Production serving**: Direct app with Vite server
 
 ## Deployment Commands
 
@@ -89,22 +79,30 @@ git remote add dokploy https://your-dokploy-domain.com/git/your-repo.git
 git push dokploy main
 ```
 
+## Environment Variables
+
+```bash
+NODE_ENV=production
+```
+
 ## Production Considerations
 
 ### Performance
-- **Static hosting**: All assets served via nginx with gzip compression
-- **CDN ready**: Can be easily integrated with CDN services
-- **Caching**: Browser caching headers for static assets
+- **Direct serving**: App served directly without reverse proxy overhead
+- **Dokploy CDN**: Automatic CDN integration through dokploy platform
+- **Asset optimization**: Vite's built-in optimizations
+- **Container optimization**: Multi-stage builds reduce image size
 
 ### Security
-- **HTTPS**: Redirect HTTP to HTTPS (handled by dokploy)
-- **Headers**: XSS protection, content type security
-- **Isolation**: Docker container isolation
+- **HTTPS**: Automatically handled by dokploy
+- **Container isolation**: Docker container security with non-root user
+- **Health monitoring**: Built-in health checks and dokploy monitoring
+- **Environment security**: Production environment variables
 
 ### Monitoring
 - **Logs**: `docker-compose logs app`
 - **Status**: Check Dokploy dashboard
-- **Health checks**: Add to docker-compose if needed
+- **Health checks**: Automatic health monitoring in dokploy
 
 ## Troubleshooting
 
@@ -117,19 +115,10 @@ docker-compose build --no-cache
 docker-compose up --build app
 ```
 
-### Network Issues
-```bash
-# Check dokploy network
-docker network ls
-
-# Recreate network
-docker network create dokploy-network
-```
-
 ### Common Issues
-1. **Port conflicts**: Ensure port 80 is available
+1. **Port conflicts**: dokploy handles port routing automatically
 2. **Build failures**: Check .dockerignore file
-3. **Permission issues**: Verify file permissions in nginx.conf
+3. **Permission issues**: Non-root user configuration in Dockerfile
 4. **Memory issues**: Add resource limits to docker-compose.yml
 
 ## Support
@@ -140,7 +129,8 @@ For application issues, check the [GitHub repository](https://github.com/HridoyV
 ## Next Steps
 
 After deployment:
-1. Configure custom domain
+1. Configure custom domain in dokploy dashboard
 2. Set up SSL (automatically handled by dokploy)
-3. Configure CDN if needed
+3. Configure custom domains if needed
 4. Set up monitoring and analytics
+5. Test application functionality in production environment

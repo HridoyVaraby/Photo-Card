@@ -17,16 +17,23 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM nginx:alpine
+FROM node:18-alpine
 
 # Copy built files from builder stage
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/dist /app
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
+# Create non-root user for security
+RUN addgroup -g node && adduser -g node -G node -s /bin/sh
+USER node
 
-# Expose port 80
-EXPOSE 80
+# Expose port 3000 (Vite default)
+EXPOSE 3000
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Set environment to production
+ENV NODE_ENV=production
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 CMD node -e "require('http').createServer((req, res) => { res.writeHead(200, { 'Content-Type': 'text/plain' }); res.end('healthy'); }).listen(3000)" || exit 1
+
+# Start the application
+CMD ["npm", "start"]
