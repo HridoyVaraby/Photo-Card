@@ -87,8 +87,50 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-sm">
-                N
+              <div className="w-10 h-10 bg-gradient-to-br from-red-700 to-red-900 rounded-lg flex items-center justify-center text-white shadow-md border border-red-600">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 32 32"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <rect
+                    x="4"
+                    y="6"
+                    width="24"
+                    height="17"
+                    rx="3"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <path
+                    d="M7 19L11 14L15 18L19 13L25 19"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    fill="none"
+                  />
+                  <circle cx="20" cy="11" r="2" fill="currentColor" />
+                  <rect
+                    x="7"
+                    y="26"
+                    width="10"
+                    height="2"
+                    rx="1"
+                    fill="currentColor"
+                  />
+                  <rect
+                    x="19"
+                    y="26"
+                    width="6"
+                    height="2"
+                    rx="1"
+                    fill="currentColor"
+                  />
+                </svg>
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900 leading-tight">

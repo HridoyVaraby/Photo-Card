@@ -1,0 +1,21 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" fill="#8B1538"/>
+
+  <!-- Photo/Frame representation -->
+  <rect x="6" y="8" width="20" height="14" rx="2" fill="none" stroke="#ffffff" stroke-width="1.5"/>
+
+  <!-- Mountain/landscape icon -->
+  <path d="M9 18L12 14L15 17L18 13L23 18" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- Sun/circle -->
+  <circle cx="19" cy="12" r="1.5" fill="#ffffff"/>
+
+  <!-- News text lines -->
+  <rect x="6" y="24" width="8" height="1.5" rx="0.75" fill="#ffffff"/>
+  <rect x="16" y="24" width="10" height="1.5" rx="0.75" fill="#ffffff"/>
+
+  <!-- Typography emphasis -->
+  <rect x="6" y="26.5" width="6" height="1.5" rx="0.75" fill="#ffffff" opacity="0.8"/>
+  <rect x="13.5" y="26.5" width="12.5" height="1.5" rx="0.75" fill="#ffffff" opacity="0.8"/>
+</svg>
