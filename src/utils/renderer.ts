@@ -1,20 +1,20 @@
-import { CardState } from '../types';
+import { CardState } from "../types";
 
 export const wrapText = (
   ctx: CanvasRenderingContext2D,
   text: string,
-  maxWidth: number
+  maxWidth: number,
 ): string[] => {
-  const words = text.split(' ');
+  const words = text.split(" ");
   const lines: string[] = [];
   let currentLine = words[0];
 
   for (let i = 1; i < words.length; i++) {
     const word = words[i];
-    const width = ctx.measureText(currentLine + ' ' + word).width;
+    const width = ctx.measureText(currentLine + " " + word).width;
 
     if (width < maxWidth) {
-      currentLine += ' ' + word;
+      currentLine += " " + word;
     } else {
       lines.push(currentLine);
       currentLine = word;
@@ -30,10 +30,13 @@ export const wrapText = (
     return lines.slice(0, 3).map((line, index) => {
       if (index === 2) {
         // Truncate third line if it's too long
-        while (ctx.measureText(line + '...').width > maxWidth && line.length > 0) {
+        while (
+          ctx.measureText(line + "...").width > maxWidth &&
+          line.length > 0
+        ) {
           line = line.slice(0, -1);
         }
-        return line + '...';
+        return line + "...";
       }
       return line;
     });
@@ -47,15 +50,15 @@ export const calculateFontSize = (
   text: string,
   maxWidth: number,
   maxFontSize: number = 48,
-  minFontSize: number = 16
+  minFontSize: number = 16,
 ): number => {
   let fontSize = maxFontSize;
 
-  ctx.font = `bold ${fontSize}px ${ctx.font.split(' ').pop()}`;
+  ctx.font = `bold ${fontSize}px ${ctx.font.split(" ").pop()}`;
 
   while (ctx.measureText(text).width > maxWidth && fontSize > minFontSize) {
     fontSize -= 2;
-    ctx.font = `bold ${fontSize}px ${ctx.font.split(' ').pop()}`;
+    ctx.font = `bold ${fontSize}px ${ctx.font.split(" ").pop()}`;
   }
 
   return fontSize;
@@ -64,7 +67,7 @@ export const calculateFontSize = (
 const loadImage = (src: string): Promise<HTMLImageElement> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = 'anonymous'; // Enable CORS for images
+    img.crossOrigin = "anonymous"; // Enable CORS for images
     img.onload = () => resolve(img);
     img.onerror = reject;
     img.src = src;
@@ -74,10 +77,10 @@ const loadImage = (src: string): Promise<HTMLImageElement> => {
 export const renderCard = async (
   canvas: HTMLCanvasElement,
   state: CardState,
-  scale: number = 1
+  scale: number = 1,
 ): Promise<void> => {
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('Could not get canvas context');
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Could not get canvas context");
 
   const { width, height } = state.settings;
   const dpr = window.devicePixelRatio || 1;
@@ -93,7 +96,7 @@ export const renderCard = async (
   ctx.clearRect(0, 0, width, height);
 
   // For Durbin News layout, handle background differently
-  if (state.settings.layout === 'durbin-news') {
+  if (state.settings.layout === "durbin-news") {
     await drawOverlayElements(ctx, state, width, height);
   } else {
     // Draw background image for other layouts
@@ -124,14 +127,14 @@ export const renderCard = async (
 
         ctx.drawImage(bgImg, drawX, drawY, drawWidth, drawHeight);
       } catch (error) {
-        console.error('Failed to load background image:', error);
+        console.error("Failed to load background image:", error);
         // Fallback
-        ctx.fillStyle = '#f3f4f6';
+        ctx.fillStyle = "#f3f4f6";
         ctx.fillRect(0, 0, width, height);
       }
     } else {
       // Draw placeholder background
-      ctx.fillStyle = '#f3f4f6';
+      ctx.fillStyle = "#f3f4f6";
       ctx.fillRect(0, 0, width, height);
     }
 
@@ -144,22 +147,36 @@ const drawOverlayElements = async (
   ctx: CanvasRenderingContext2D,
   state: CardState,
   width: number,
-  height: number
+  height: number,
 ): Promise<void> => {
   const padding = 32;
   const logoSize = Math.floor(width * 0.14); // 14% of canvas width
 
   // Choose layout based on settings
-  const layout = state.settings.layout || 'default';
+  const layout = state.settings.layout || "default";
 
   switch (layout) {
-    case 'facebook-modern':
-      await drawFacebookModernLayout(ctx, state, width, height, padding, logoSize);
+    case "facebook-modern":
+      await drawFacebookModernLayout(
+        ctx,
+        state,
+        width,
+        height,
+        padding,
+        logoSize,
+      );
       break;
-    case 'facebook-minimal':
-      await drawFacebookMinimalLayout(ctx, state, width, height, padding, logoSize);
+    case "facebook-minimal":
+      await drawFacebookMinimalLayout(
+        ctx,
+        state,
+        width,
+        height,
+        padding,
+        logoSize,
+      );
       break;
-    case 'durbin-news':
+    case "durbin-news":
       await drawDurbinNewsLayout(ctx, state, width, height, padding, logoSize);
       break;
     default:
@@ -173,7 +190,7 @@ const drawDefaultLayout = async (
   width: number,
   height: number,
   padding: number,
-  logoSize: number
+  logoSize: number,
 ): Promise<void> => {
   // Draw logo if available
   if (state.logo) {
@@ -185,7 +202,7 @@ const drawDefaultLayout = async (
       const logoY = padding;
 
       // Create rounded rectangle for logo background
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+      ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
       ctx.beginPath();
       ctx.roundRect(logoX - 8, logoY - 8, logoSize + 16, logoSize + 16, 8);
       ctx.fill();
@@ -193,7 +210,7 @@ const drawDefaultLayout = async (
       // Draw logo
       ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
     } catch (error) {
-      console.error('Failed to load logo:', error);
+      console.error("Failed to load logo:", error);
     }
   }
 
@@ -207,7 +224,7 @@ const drawFacebookModernLayout = async (
   width: number,
   height: number,
   padding: number,
-  logoSize: number
+  logoSize: number,
 ): Promise<void> => {
   // Facebook modern layout: logo top-left, headline in semi-transparent overlay box
   if (state.logo) {
@@ -219,7 +236,7 @@ const drawFacebookModernLayout = async (
       const logoY = padding;
 
       // Create rounded rectangle for logo background
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+      ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
       ctx.beginPath();
       ctx.roundRect(logoX - 8, logoY - 8, logoSize + 16, logoSize + 16, 12);
       ctx.fill();
@@ -227,7 +244,7 @@ const drawFacebookModernLayout = async (
       // Draw logo
       ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
     } catch (error) {
-      console.error('Failed to load logo:', error);
+      console.error("Failed to load logo:", error);
     }
   }
 
@@ -241,7 +258,7 @@ const drawFacebookMinimalLayout = async (
   width: number,
   height: number,
   padding: number,
-  logoSize: number
+  logoSize: number,
 ): Promise<void> => {
   // Facebook minimal layout: clean typography with subtle branding
   if (state.logo) {
@@ -258,7 +275,7 @@ const drawFacebookMinimalLayout = async (
       ctx.drawImage(logoImg, logoX, logoY, smallLogoSize, smallLogoSize);
       ctx.globalAlpha = 1.0;
     } catch (error) {
-      console.error('Failed to load logo:', error);
+      console.error("Failed to load logo:", error);
     }
   }
 
@@ -271,29 +288,29 @@ const drawFacebookHeadlineOverlay = (
   state: CardState,
   width: number,
   height: number,
-  _padding: number
+  _padding: number,
 ): void => {
-  const overlayHeight = Math.floor(height * 0.3); // 30% of canvas height
+  const overlayHeight = Math.floor(height * 0.35); // Increased from 30% to 35% - more gap between image and headline
   const overlayY = height - overlayHeight;
   const overlayPadding = 40;
 
   // Draw semi-transparent overlay background with gradient
   const gradient = ctx.createLinearGradient(0, overlayY, 0, height);
-  gradient.addColorStop(0, state.settings.brandColor + '00');
-  gradient.addColorStop(0.5, state.settings.brandColor + '40');
-  gradient.addColorStop(1, state.settings.brandColor + 'cc');
+  gradient.addColorStop(0, state.settings.brandColor + "00");
+  gradient.addColorStop(0.5, state.settings.brandColor + "40");
+  gradient.addColorStop(1, state.settings.brandColor + "cc");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, overlayY, width, overlayHeight);
 
   // Setup text properties
-  const textMaxWidth = width - (overlayPadding * 2);
+  const textMaxWidth = width - overlayPadding * 2;
   const textX = overlayPadding;
-  const textY = overlayY + (overlayHeight / 2);
+  const textY = overlayY + overlayHeight / 2;
 
-  ctx.fillStyle = '#ffffff';
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+  ctx.fillStyle = "#ffffff";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
   ctx.shadowBlur = 6;
   ctx.shadowOffsetX = 2;
   ctx.shadowOffsetY = 2;
@@ -309,18 +326,18 @@ const drawFacebookHeadlineOverlay = (
       state.headline,
       textMaxWidth,
       Math.floor(overlayHeight * 0.5),
-      Math.floor(overlayHeight * 0.25)
+      Math.floor(overlayHeight * 0.25),
     );
 
-    ctx.font = `bold ${fontSize}px ${ctx.font.split(' ').pop()}`;
+    ctx.font = `bold ${fontSize}px ${ctx.font.split(" ").pop()}`;
 
     // Draw each line
     const lineHeight = fontSize * 1.2;
     const totalHeight = lines.length * lineHeight;
-    const startY = textY - (totalHeight / 2) + (fontSize / 2);
+    const startY = textY - totalHeight / 2 + fontSize / 2;
 
     lines.forEach((line, index) => {
-      ctx.fillText(line, textX, startY + (index * lineHeight));
+      ctx.fillText(line, textX, startY + index * lineHeight);
     });
   }
 };
@@ -331,28 +348,28 @@ const drawMinimalistHeadlineBar = (
   width: number,
   height: number,
   padding: number,
-  _logoSize: number
+  _logoSize: number,
 ): void => {
-  const barHeight = Math.floor(height * 0.15); // 15% for minimal look
+  const barHeight = Math.floor(height * 0.18); // Increased from 15% to 18% - more gap between image and headline
   const barY = height - barHeight;
 
   // Draw subtle bottom bar with gradient
   const gradient = ctx.createLinearGradient(0, barY, 0, height);
-  gradient.addColorStop(0, state.settings.brandColor + 'ee'); // 93% opacity
+  gradient.addColorStop(0, state.settings.brandColor + "ee"); // 93% opacity
   gradient.addColorStop(1, state.settings.brandColor); // 100% opacity
 
   ctx.fillStyle = gradient;
   ctx.fillRect(0, barY, width, barHeight);
 
   // Setup text properties
-  const textMaxWidth = width - (padding * 2);
+  const textMaxWidth = width - padding * 2;
   const textX = padding;
-  const textY = barY + (barHeight / 2);
+  const textY = barY + barHeight / 2;
 
-  ctx.fillStyle = '#ffffff';
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+  ctx.fillStyle = "#ffffff";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
   ctx.shadowBlur = 3;
   ctx.shadowOffsetX = 1;
   ctx.shadowOffsetY = 1;
@@ -368,18 +385,18 @@ const drawMinimalistHeadlineBar = (
       state.headline,
       textMaxWidth,
       Math.floor(barHeight * 0.6),
-      Math.floor(barHeight * 0.3)
+      Math.floor(barHeight * 0.3),
     );
 
-    ctx.font = `600 ${fontSize}px ${ctx.font.split(' ').pop()}`;
+    ctx.font = `600 ${fontSize}px ${ctx.font.split(" ").pop()}`;
 
     // Draw each line
     const lineHeight = fontSize * 1.1;
     const totalHeight = lines.length * lineHeight;
-    const startY = textY - (totalHeight / 2) + (fontSize / 2);
+    const startY = textY - totalHeight / 2 + fontSize / 2;
 
     lines.forEach((line, index) => {
-      ctx.fillText(line, textX, startY + (index * lineHeight));
+      ctx.fillText(line, textX, startY + index * lineHeight);
     });
   }
 };
@@ -389,24 +406,24 @@ const drawHeadlineBar = (
   state: CardState,
   width: number,
   height: number,
-  padding: number
+  padding: number,
 ): void => {
-  const barHeight = Math.floor(height * 0.25); // 25% of canvas height
+  const barHeight = Math.floor(height * 0.28); // Increased from 25% to 28% - more gap between image and headline
   const barY = height - barHeight;
 
   // Draw semi-transparent overlay bar
-  ctx.fillStyle = state.settings.brandColor + 'e6'; // 90% opacity (hex e6)
+  ctx.fillStyle = state.settings.brandColor + "e6"; // 90% opacity (hex e6)
   ctx.fillRect(0, barY, width, barHeight);
 
   // Setup text properties
-  const textMaxWidth = width - (padding * 2);
+  const textMaxWidth = width - padding * 2;
   const textX = padding;
-  const textY = barY + (barHeight / 2);
+  const textY = barY + barHeight / 2;
 
-  ctx.fillStyle = '#ffffff';
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+  ctx.fillStyle = "#ffffff";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
   ctx.shadowBlur = 4;
   ctx.shadowOffsetX = 2;
   ctx.shadowOffsetY = 2;
@@ -422,18 +439,18 @@ const drawHeadlineBar = (
       state.headline,
       textMaxWidth,
       Math.floor(barHeight * 0.6),
-      Math.floor(barHeight * 0.3)
+      Math.floor(barHeight * 0.3),
     );
 
-    ctx.font = `bold ${fontSize}px ${ctx.font.split(' ').pop()}`;
+    ctx.font = `bold ${fontSize}px ${ctx.font.split(" ").pop()}`;
 
     // Draw each line
     const lineHeight = fontSize * 1.2;
     const totalHeight = lines.length * lineHeight;
-    const startY = textY - (totalHeight / 2) + (fontSize / 2);
+    const startY = textY - totalHeight / 2 + fontSize / 2;
 
     lines.forEach((line, index) => {
-      ctx.fillText(line, textX, startY + (index * lineHeight));
+      ctx.fillText(line, textX, startY + index * lineHeight);
     });
   }
 };
@@ -444,7 +461,7 @@ async function drawDurbinNewsLayout(
   width: number,
   height: number,
   _padding: number,
-  _logoSize: number
+  _logoSize: number,
 ): Promise<void> {
   // Draw background - prioritize backgroundImage > brandColor > default red
   if (state.backgroundImage) {
@@ -474,25 +491,25 @@ async function drawDurbinNewsLayout(
 
       ctx.drawImage(bgImg, drawX, drawY, drawWidth, drawHeight);
     } catch (error) {
-      console.error('Failed to load background image:', error);
+      console.error("Failed to load background image:", error);
       // Fallback to brand color
-      ctx.fillStyle = state.settings.brandColor || '#8B1538';
+      ctx.fillStyle = state.settings.brandColor || "#8B1538";
       ctx.fillRect(0, 0, width, height);
     }
   } else {
     // Use brand color or default red
-    ctx.fillStyle = state.settings.brandColor || '#8B1538';
+    ctx.fillStyle = state.settings.brandColor || "#8B1538";
     ctx.fillRect(0, 0, width, height);
   }
 
   // Dynamic sizing based on percentages
-  const headerHeight = height * 0.28; // 28% for header
-  const footerHeight = height * 0.20; // 20% for footer
+  const headerHeight = height * 0.22; // Reduced from 28% to 22% - less gap between header and image
+  const footerHeight = height * 0.25; // Increased from 20% to 25% - more gap between image and headline
   const imageAreaHeight = height - headerHeight - footerHeight;
 
   // Image dimensions
   const imgMargin = width * 0.05; // 5% margin
-  const imgWidth = width - (imgMargin * 2);
+  const imgWidth = width - imgMargin * 2;
   // Calculate max image height that fits in the middle area
   const maxImgHeight = imageAreaHeight * 0.95; // Use 95% of available space
 
@@ -503,8 +520,13 @@ async function drawDurbinNewsLayout(
 
   // Draw white border around image
   const borderSize = Math.max(4, width * 0.005);
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(imgX - borderSize, imgY - borderSize, imgWidth + (borderSize * 2), imgHeight + (borderSize * 2));
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(
+    imgX - borderSize,
+    imgY - borderSize,
+    imgWidth + borderSize * 2,
+    imgHeight + borderSize * 2,
+  );
 
   // Draw main image
   if (state.mainImage) {
@@ -530,19 +552,36 @@ async function drawDurbinNewsLayout(
         sourceY = (imgImg.height - sourceHeight) / 2;
       }
 
-      ctx.drawImage(imgImg, sourceX, sourceY, sourceWidth, sourceHeight, imgX, imgY, imgWidth, imgHeight);
+      ctx.drawImage(
+        imgImg,
+        sourceX,
+        sourceY,
+        sourceWidth,
+        sourceHeight,
+        imgX,
+        imgY,
+        imgWidth,
+        imgHeight,
+      );
     } catch (error) {
-      console.error('Failed to load main image:', error);
-      ctx.fillStyle = '#f3f4f6';
+      console.error("Failed to load main image:", error);
+      ctx.fillStyle = "#f3f4f6";
       ctx.fillRect(imgX, imgY, imgWidth, imgHeight);
     }
   } else {
-    ctx.fillStyle = '#f3f4f6';
+    ctx.fillStyle = "#f3f4f6";
     ctx.fillRect(imgX, imgY, imgWidth, imgHeight);
   }
 
   // Draw other elements
-  await drawDurbinNewsElements(ctx, state, width, height, headerHeight, footerHeight);
+  await drawDurbinNewsElements(
+    ctx,
+    state,
+    width,
+    height,
+    headerHeight,
+    footerHeight,
+  );
 }
 
 async function drawDurbinNewsElements(
@@ -551,9 +590,11 @@ async function drawDurbinNewsElements(
   width: number,
   height: number,
   headerHeight: number,
-  footerHeight: number
+  footerHeight: number,
 ): Promise<void> {
-  const fontFamily = state.settings.font ? `'${state.settings.font}', sans-serif` : "'Noto Sans Bengali', 'Hind Siliguri', 'Arial', sans-serif";
+  const fontFamily = state.settings.font
+    ? `'${state.settings.font}', sans-serif`
+    : "'Noto Sans Bengali', 'Hind Siliguri', 'Arial', sans-serif";
 
   // --- LOGO (Top Left) ---
   if (state.logo) {
@@ -587,16 +628,16 @@ async function drawDurbinNewsElements(
 
       ctx.drawImage(logoImg, logoX, logoY, drawLogoWidth, drawLogoHeight);
     } catch (error) {
-      console.error('Failed to load logo:', error);
+      console.error("Failed to load logo:", error);
     }
   } else {
     // Text logo fallback
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = "#ffffff";
     ctx.font = `bold ${Math.floor(width * 0.05)}px ${fontFamily}`;
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
-    ctx.fillText('DURBIN', width * 0.03, width * 0.03);
-    ctx.fillText('NEWS', width * 0.03, width * 0.08);
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    ctx.fillText("DURBIN", width * 0.03, width * 0.03);
+    ctx.fillText("NEWS", width * 0.03, width * 0.08);
   }
 
   // --- DATE & BADGE (Top Right) ---
@@ -604,42 +645,41 @@ async function drawDurbinNewsElements(
   const rightPadding = width * 0.03;
 
   // 1. Date (Top Right)
-  const dateText = state.date || '৩০ নভেম্বর, ২০২৫';
+  const dateText = state.date || "৩০ নভেম্বর, ২০২৫";
   const dateFontSize = Math.floor(width * 0.035); // Responsive font size
   ctx.font = `bold ${dateFontSize}px ${fontFamily}`;
-  ctx.textAlign = 'right';
-  ctx.textBaseline = 'top';
+  ctx.textAlign = "right";
+  ctx.textBaseline = "top";
 
   // Measure date width
   const dateHeight = dateFontSize * 1.2;
 
   // Draw Date Text
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = "#ffffff";
   ctx.fillText(dateText, width - rightPadding, topPadding);
 
   // 2. "Latest News" Badge (Below Date)
-  const badgeText = 'সর্বশেষ সংবাদ';
+  const badgeText = "সর্বশেষ সংবাদ";
   const badgeFontSize = Math.floor(width * 0.03);
   ctx.font = `bold ${badgeFontSize}px ${fontFamily}`;
   const badgeMetrics = ctx.measureText(badgeText);
   const badgePaddingX = badgeFontSize * 0.8;
   const badgePaddingY = badgeFontSize * 0.4;
-  const badgeWidth = badgeMetrics.width + (badgePaddingX * 2);
-  const badgeHeight = badgeFontSize + (badgePaddingY * 2);
+  const badgeWidth = badgeMetrics.width + badgePaddingX * 2;
+  const badgeHeight = badgeFontSize + badgePaddingY * 2;
 
   const badgeX = width - rightPadding - badgeWidth;
-  const badgeY = topPadding + dateHeight + (width * 0.01); // Spacing below date
+  const badgeY = topPadding + dateHeight + width * 0.01; // Spacing below date
 
   // Badge Background (White)
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = "#ffffff";
   ctx.fillRect(badgeX, badgeY, badgeWidth, badgeHeight);
 
   // Badge Text (Red)
-  ctx.fillStyle = '#8B1538';
-  ctx.textAlign = 'left'; // Reset alignment for badge text drawing
-  ctx.textBaseline = 'middle';
-  ctx.fillText(badgeText, badgeX + badgePaddingX, badgeY + (badgeHeight / 2));
-
+  ctx.fillStyle = "#8B1538";
+  ctx.textAlign = "left"; // Reset alignment for badge text drawing
+  ctx.textBaseline = "middle";
+  ctx.fillText(badgeText, badgeX + badgePaddingX, badgeY + badgeHeight / 2);
 
   // --- HEADLINE (Bottom) ---
   if (state.headline) {
@@ -649,16 +689,16 @@ async function drawDurbinNewsElements(
     // For now, we rely on the main red background.
 
     // Setup headline text
-    ctx.fillStyle = '#FFD700'; // Gold color
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+    ctx.fillStyle = "#FFD700"; // Gold color
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
     ctx.shadowBlur = 4;
     ctx.shadowOffsetX = 2;
     ctx.shadowOffsetY = 2;
 
     const headlinePadding = width * 0.05;
-    const headlineMaxWidth = width - (headlinePadding * 2);
+    const headlineMaxWidth = width - headlinePadding * 2;
 
     // Calculate optimal font size to fit text in footer area
     // Max 3 lines
@@ -686,10 +726,11 @@ async function drawDurbinNewsElements(
     // Draw lines
     const lineHeight = fontSize * 1.3;
     const totalTextHeight = lines.length * lineHeight;
-    const startY = headlineY + (footerHeight / 2) - (totalTextHeight / 2) + (fontSize / 2);
+    const startY =
+      headlineY + footerHeight / 2 - totalTextHeight / 2 + fontSize / 2;
 
     lines.forEach((line, index) => {
-      ctx.fillText(line, width / 2, startY + (index * lineHeight));
+      ctx.fillText(line, width / 2, startY + index * lineHeight);
     });
   }
 }
