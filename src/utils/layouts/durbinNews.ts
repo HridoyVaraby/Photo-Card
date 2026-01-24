@@ -212,11 +212,18 @@ async function drawDurbinDetails(ctx: CanvasRenderingContext2D, state: any, widt
         ctx.shadowOffsetX = 2;
         ctx.shadowOffsetY = 2;
 
-        // simple wrap logic usage
-        const lines = wrapText(ctx, state.headline, headlineMaxWidth);
-        const fontSize = calculateFontSize(ctx, state.headline, headlineMaxWidth, maxFontSize, 20);
+        // 1. Calculate optimal font size relative to maxWidth (pretending single line first to get a baseline)
+        // Note: For multi-line wrapping, we might want a slightly different approach, but sticking to "shrink to fit width" 
+        // is a safe start. If it wraps, we accept it.
+        const fontSize = calculateFontSize(ctx, state.headline, headlineMaxWidth, fontFamily, maxFontSize, 20);
 
+        // 2. Apply the calculated font
         ctx.font = `bold ${fontSize}px ${fontFamily}`;
+
+        // 3. Wrap text using the CORRECT font
+        const lines = wrapText(ctx, state.headline, headlineMaxWidth);
+
+        // 4. Draw
         const lineHeight = fontSize * 1.3;
         const totalH = lines.length * lineHeight;
         const startY = headlineY + footerHeight / 2 - totalH / 2 + fontSize / 2;

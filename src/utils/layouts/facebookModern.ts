@@ -65,6 +65,7 @@ export const FacebookModernLayout: LayoutStrategy = {
                 ctx,
                 state.headline,
                 textMaxWidth,
+                state.settings.font,
                 Math.floor(overlayHeight * 0.5),
                 Math.floor(overlayHeight * 0.25),
             );

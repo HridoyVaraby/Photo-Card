@@ -47,16 +47,17 @@ export const calculateFontSize = (
     ctx: CanvasRenderingContext2D,
     text: string,
     maxWidth: number,
+    fontFamily: string,
     maxFontSize: number = 48,
     minFontSize: number = 16,
 ): number => {
     let fontSize = maxFontSize;
 
-    ctx.font = `bold ${fontSize}px ${ctx.font.split(" ").pop()}`;
+    ctx.font = `bold ${fontSize}px ${fontFamily}`;
 
     while (ctx.measureText(text).width > maxWidth && fontSize > minFontSize) {
         fontSize -= 2;
-        ctx.font = `bold ${fontSize}px ${ctx.font.split(" ").pop()}`;
+        ctx.font = `bold ${fontSize}px ${fontFamily}`;
     }
 
     return fontSize;

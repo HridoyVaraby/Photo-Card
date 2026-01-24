@@ -62,6 +62,7 @@ export const DefaultLayout: LayoutStrategy = {
                 ctx,
                 state.headline,
                 textMaxWidth,
+                state.settings.font,
                 Math.floor(barHeight * 0.6),
                 Math.floor(barHeight * 0.3),
             );
