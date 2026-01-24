@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Layers, MousePointer2 } from 'lucide-react';
 import { CardState } from '../types';
 import { UploadField } from './UploadField';
+import { PresetGallery } from './PresetGallery';
+import { BackgroundGallery } from './BackgroundGallery';
 import { ResolutionSelector } from './ResolutionSelector';
 import { FontSelector } from './FontSelector';
 import { ColorPicker } from './ColorPicker';
@@ -144,6 +146,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           required
           placeholder="Upload your news photo"
         />
+        <PresetGallery onSelect={(url) => onStateChange({ mainImage: url })} />
 
         <UploadField
           label="Company Logo (Optional)"
@@ -184,6 +187,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           onFileSelect={handleBackgroundImageSelect}
           placeholder="Custom background"
         />
+        <BackgroundGallery onSelect={(url) => onStateChange({ backgroundImage: url })} />
       </AccordionItem>
 
       {/* Design Section */}
