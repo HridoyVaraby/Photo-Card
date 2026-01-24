@@ -1,9 +1,12 @@
 import { useState, useCallback } from "react";
+import { motion } from "framer-motion";
+import { Download, Palette, Type, Image as ImageIcon } from "lucide-react";
 import { CardState } from "./types";
 import { Toolbar } from "./components/Toolbar";
 import { CanvasPreview } from "./components/CanvasPreview";
 import { renderCard } from "./utils/renderer";
 import { exportAndDownload } from "./utils/exportUtils";
+import { Button } from "./components/ui/button";
 
 const initialState: CardState = {
   mainImage: null,
@@ -14,7 +17,7 @@ const initialState: CardState = {
     width: 1080,
     height: 1080,
     font: "Tiro Bangla",
-    brandColor: "#8B1538",
+    brandColor: "#be123c", // Updated to new accent default
     format: "png",
     quality: 90,
     layout: "durbin-news",
@@ -41,23 +44,17 @@ function App() {
     setIsExporting(true);
 
     try {
-      // Create a temporary canvas for export
       const canvas = document.createElement("canvas");
       canvas.width = state.settings.width;
       canvas.height = state.settings.height;
 
-      // Render the card at full resolution (await the async render)
       await renderCard(canvas, state, 1);
 
-      // Export to blob
       const blob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob(
           (blob) => {
-            if (blob) {
-              resolve(blob);
-            } else {
-              reject(new Error("Failed to create blob"));
-            }
+            if (blob) requestAnimationFrame(() => resolve(blob));
+            else reject(new Error("Failed to create blob"));
           },
           `image/${state.settings.format}`,
           state.settings.format === "jpeg"
@@ -66,7 +63,6 @@ function App() {
         );
       });
 
-      // Download the file
       await exportAndDownload(blob, state.headline, state.settings.format);
     } catch (error) {
       console.error("Export failed:", error);
@@ -81,146 +77,98 @@ function App() {
   const isReadyToExport = state.mainImage && state.headline.trim() !== "";
 
   return (
-    <div className="min-h-screen bg-gray-100 font-inter">
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-accent selection:text-white">
       {/* Header */}
-      <header className="bg-white shadow-md border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-red-700 to-red-900 rounded-lg flex items-center justify-center text-white shadow-md border border-red-600">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 32 32"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <rect
-                    x="4"
-                    y="6"
-                    width="24"
-                    height="17"
-                    rx="3"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  />
-                  <path
-                    d="M7 19L11 14L15 18L19 13L25 19"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    fill="none"
-                  />
-                  <circle cx="20" cy="11" r="2" fill="currentColor" />
-                  <rect
-                    x="7"
-                    y="26"
-                    width="10"
-                    height="2"
-                    rx="1"
-                    fill="currentColor"
-                  />
-                  <rect
-                    x="19"
-                    y="26"
-                    width="6"
-                    height="2"
-                    rx="1"
-                    fill="currentColor"
-                  />
-                </svg>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900 leading-tight">
-                  News Card Generator
-                </h1>
-                <p className="text-xs text-gray-500 font-medium">
-                  Professional Social Media Assets
-                </p>
-              </div>
+      <header className="sticky top-0 z-50 glass border-b border-border/40">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded bg-gradient-to-br from-accent to-red-900 flex items-center justify-center text-white font-serif font-bold text-lg shadow-sm">
+              N
             </div>
-            <div className="flex items-center space-x-4">
-              <div
-                className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors duration-200 ${
-                  isReadyToExport
-                    ? "bg-green-100 text-green-700 border border-green-200"
-                    : "bg-yellow-50 text-yellow-700 border border-yellow-200"
-                }`}
-              >
-                {isReadyToExport ? "✓ Ready to Export" : "⚠ Missing Content"}
-              </div>
-            </div>
+            <h1 className="text-lg font-serif font-semibold tracking-tight text-primary">
+              News Card Generator
+            </h1>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={handleExport}
+              disabled={!isReadyToExport || isExporting}
+              variant="default" // Explicit variant
+              className={`transition-all duration-300 ${!isReadyToExport ? 'opacity-50' : 'hover:scale-105'}`}
+            >
+              {isExporting ? (
+                <span className="flex items-center gap-2">
+                  <span className="animate-spin text-lg">⟳</span> Exporting...
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <Download className="w-4 h-4" /> Export Card
+                </span>
+              )}
+            </Button>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left Column - Controls */}
-          <div className="lg:col-span-5 space-y-6">
+      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 h-full">
+
+          {/* Left Column - Controls (Sticky Sidebar) */}
+          <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto scrollbar-hide pr-2">
+            <div className="space-y-1 mb-6">
+              <h2 className="text-2xl font-serif font-semibold">Design Studio</h2>
+              <p className="text-sm text-muted-foreground">Customize your asset details below.</p>
+            </div>
+
             <Toolbar state={state} onStateChange={handleStateChange} />
           </div>
 
-          {/* Right Column - Preview */}
-          <div className="lg:col-span-7">
-            <div className="lg:sticky lg:top-24">
-              <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200">
-                <div className="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
-                  <h3 className="font-semibold text-gray-700">Live Preview</h3>
-                  <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded border border-gray-200">
-                    {state.settings.width} x {state.settings.height}
-                  </span>
-                </div>
-                <div className="p-6 bg-gray-100 flex items-center justify-center min-h-[400px]">
-                  <CanvasPreview
-                    state={state}
-                    onExport={handleExport}
-                    isLoading={isExporting}
-                  />
-                </div>
-              </div>
+          {/* Right Column - Preview (Art Gallery) */}
+          <div className="lg:col-span-8 flex flex-col gap-6">
+            <div className="bg-secondary/30 rounded-2xl border border-border/50 p-8 flex items-center justify-center min-h-[600px] shadow-sm relative overflow-hidden backdrop-blur-sm">
+              <div className="absolute inset-0 bg-grid-pattern opacity-[0.03] pointer-events-none" />
 
-              {/* Quick Tips */}
-              <div className="mt-6 bg-blue-50 rounded-xl p-6 border border-blue-100">
-                <h3 className="text-sm font-semibold text-blue-900 mb-3">
-                  Pro Tips
-                </h3>
-                <ul className="space-y-2 text-sm text-blue-800">
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    Use high-resolution images (at least 1200px wide) for best
-                    results.
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    Keep headlines concise (under 3 lines) for maximum
-                    readability.
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-2">•</span>
-                    Match the brand color to your organization's primary color.
-                  </li>
-                </ul>
+              <motion.div
+                layout
+                className="relative shadow-2xl rounded-sm overflow-hidden ring-1 ring-black/5"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+              >
+                <CanvasPreview
+                  state={state}
+                  onExport={handleExport}
+                  isLoading={isExporting}
+                />
+              </motion.div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-card border border-border/50 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-2 text-accent font-medium mb-2">
+                  <ImageIcon className="w-4 h-4" /> <span>High Res</span>
+                </div>
+                <p className="text-xs text-muted-foreground">Always upload images at least 2x target resolution for crisp text.</p>
+              </div>
+              <div className="bg-card border border-border/50 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-2 text-accent font-medium mb-2">
+                  <Type className="w-4 h-4" /> <span>Typography</span>
+                </div>
+                <p className="text-xs text-muted-foreground">Keep headlines concise. 2-3 lines work best for social impact.</p>
+              </div>
+              <div className="bg-card border border-border/50 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-2 text-accent font-medium mb-2">
+                  <Palette className="w-4 h-4" /> <span>Color</span>
+                </div>
+                <p className="text-xs text-muted-foreground">Use your official brand color hex code for consistency.</p>
               </div>
             </div>
           </div>
+
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center text-sm text-gray-500">
-            <p>
-              © {new Date().getFullYear()} News Photo Card Generator. All rights
-              reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

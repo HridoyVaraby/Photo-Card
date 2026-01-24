@@ -1,20 +1,82 @@
-import React from 'react';
-import { CardState, ResolutionOption } from '../types';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDown, Layers, MousePointer2 } from 'lucide-react';
+import { CardState } from '../types';
 import { UploadField } from './UploadField';
 import { ResolutionSelector } from './ResolutionSelector';
 import { FontSelector } from './FontSelector';
 import { ColorPicker } from './ColorPicker';
 import { LayoutSelector } from './LayoutSelector';
+import { Label } from './ui/label';
+import { Input } from './ui/input';
+import { cn } from '../lib/utils';
 
 interface ToolbarProps {
   state: CardState;
   onStateChange: (updates: Partial<CardState>) => void;
 }
 
+const AccordionItem = ({
+  title,
+  icon: Icon,
+  isOpen,
+  onClick,
+  children
+}: {
+  title: string;
+  icon: any;
+  isOpen: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) => {
+  return (
+    <div className="border border-border rounded-xl bg-card overflow-hidden shadow-sm transition-all duration-200 hover:shadow-md">
+      <button
+        onClick={onClick}
+        className={cn(
+          "w-full flex items-center justify-between p-4 text-left transition-colors",
+          isOpen ? "bg-secondary/50" : "bg-card hover:bg-secondary/30"
+        )}
+      >
+        <div className="flex items-center gap-3">
+          <div className={cn("p-2 rounded-lg bg-background border border-border/50 text-accent", isOpen && "bg-accent text-white shadow-sm ring-2 ring-accent/20")}>
+            <Icon size={18} />
+          </div>
+          <span className="font-medium text-foreground">{title}</span>
+        </div>
+        <ChevronDown
+          size={18}
+          className={cn("text-muted-foreground transition-transform duration-300", isOpen && "rotate-180")}
+        />
+      </button>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
+          >
+            <div className="p-5 border-t border-border/50 space-y-5 bg-card/50">
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
 export const Toolbar: React.FC<ToolbarProps> = ({
   state,
   onStateChange
 }) => {
+  const [openSection, setOpenSection] = useState<string>('content');
+
+  const toggleSection = (section: string) => {
+    setOpenSection(openSection === section ? '' : section);
+  };
+
   const handleMainImageSelect = (file: File | null) => {
     if (file) {
       const reader = new FileReader();
@@ -43,14 +105,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     }
   };
 
-  const handleHeadlineChange = (headline: string) => {
-    onStateChange({ headline });
-  };
-
-  const handleDateChange = (date: string) => {
-    onStateChange({ date });
-  };
-
   const handleBackgroundImageSelect = (file: File | null) => {
     if (file) {
       const reader = new FileReader();
@@ -65,34 +119,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     }
   };
 
-  const handleResolutionChange = (resolution: ResolutionOption) => {
-    onStateChange({
-      settings: {
-        ...state.settings,
-        width: resolution.width,
-        height: resolution.height
-      }
-    });
-  };
-
-  const handleFontChange = (font: string) => {
-    onStateChange({
-      settings: {
-        ...state.settings,
-        font
-      }
-    });
-  };
-
-  const handleColorChange = (brandColor: string) => {
-    onStateChange({
-      settings: {
-        ...state.settings,
-        brandColor
-      }
-    });
-  };
-
   const handleLayoutChange = (layout: 'default' | 'facebook-modern' | 'facebook-minimal' | 'durbin-news') => {
     onStateChange({
       settings: {
@@ -102,190 +128,152 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     });
   };
 
-  const handleFormatChange = (format: 'png' | 'jpeg') => {
-    onStateChange({
-      settings: {
-        ...state.settings,
-        format,
-        quality: format === 'jpeg' ? 90 : undefined
-      }
-    });
-  };
-
-  const handleQualityChange = (quality: number) => {
-    onStateChange({
-      settings: {
-        ...state.settings,
-        quality
-      }
-    });
-  };
-
   return (
-    <div className="space-y-6">
-      {/* Basic Content */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-            <span className="bg-blue-100 text-blue-600 w-6 h-6 rounded-full flex items-center justify-center text-xs mr-2">1</span>
-            Content
-          </h2>
-        </div>
+    <div className="space-y-4">
+      {/* Content Section */}
+      <AccordionItem
+        title="Content & Assets"
+        icon={Layers}
+        isOpen={openSection === 'content'}
+        onClick={() => toggleSection('content')}
+      >
+        <UploadField
+          label="Main Image"
+          value={state.mainImage}
+          onFileSelect={handleMainImageSelect}
+          required
+          placeholder="Upload your news photo"
+        />
 
-        <div className="p-6 space-y-6">
-          <UploadField
-            label="Main Image"
-            value={state.mainImage}
-            onFileSelect={handleMainImageSelect}
-            required
-            placeholder="Upload your news photo"
+        <UploadField
+          label="Company Logo (Optional)"
+          value={state.logo}
+          onFileSelect={handleLogoSelect}
+          placeholder="Add your logo"
+        />
+
+        <div className="grid gap-2">
+          <Label>Headline <span className="text-destructive">*</span></Label>
+          <textarea
+            value={state.headline}
+            onChange={(e) => onStateChange({ headline: e.target.value })}
+            placeholder="Enter your headline text..."
+            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-shadow resize-none"
+            rows={3}
           />
-
-          <UploadField
-            label="Company Logo (Optional)"
-            value={state.logo}
-            onFileSelect={handleLogoSelect}
-            placeholder="Add your logo to the top-right corner"
-          />
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Headline
-              <span className="text-red-500 ml-1">*</span>
-            </label>
-            <textarea
-              value={state.headline}
-              onChange={(e) => handleHeadlineChange(e.target.value)}
-              placeholder="Enter your headline text..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white text-gray-900 placeholder-gray-400 transition-shadow"
-              rows={3}
-              required
-            />
-            <p className="mt-2 text-xs text-gray-500 flex justify-between">
-              <span>Maximum 3 lines. Supports English and Bengali text.</span>
-              <span className={state.headline.length > 100 ? 'text-orange-500' : 'text-gray-400'}>
-                {state.headline.length} chars
-              </span>
-            </p>
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>Max 3 lines</span>
+            <span className={state.headline.length > 100 ? 'text-orange-500' : ''}>
+              {state.headline.length} chars
+            </span>
           </div>
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Date (Bengali)
-            </label>
-            <input
-              type="text"
-              value={state.date || ''}
-              onChange={(e) => handleDateChange(e.target.value)}
-              placeholder="৩০ নভেম্বর, ২০২৫"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-400 transition-shadow"
-            />
-            <p className="mt-2 text-xs text-gray-500">
-              Enter date in Bengali format for news layout.
-            </p>
-          </div>
-
-          <UploadField
-            label="Background Image (Durbin News Only)"
-            value={state.backgroundImage || null}
-            onFileSelect={handleBackgroundImageSelect}
-            placeholder="Upload a custom background for Durbin News layout"
+        <div className="grid gap-2">
+          <Label>Date (Bengali)</Label>
+          <Input
+            value={state.date || ''}
+            onChange={(e) => onStateChange({ date: e.target.value })}
+            placeholder="৩০ নভেম্বর, ২০২৫"
           />
         </div>
-      </div>
 
-      {/* Design Settings */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-            <span className="bg-purple-100 text-purple-600 w-6 h-6 rounded-full flex items-center justify-center text-xs mr-2">2</span>
-            Design Settings
-          </h2>
-        </div>
+        <UploadField
+          label="Background Image (Durbin News)"
+          value={state.backgroundImage || null}
+          onFileSelect={handleBackgroundImageSelect}
+          placeholder="Custom background"
+        />
+      </AccordionItem>
 
-        <div className="p-6 space-y-6">
+      {/* Design Section */}
+      <AccordionItem
+        title="Design & Layout"
+        icon={MousePointer2}
+        isOpen={openSection === 'design'}
+        onClick={() => toggleSection('design')}
+      >
+        <LayoutSelector
+          value={(state.settings.layout || 'default') as any}
+          onChange={handleLayoutChange}
+        />
+
+        <div className="grid grid-cols-1 gap-4 pt-4 border-t border-border/40">
           <ResolutionSelector
             value={{
               name: 'Custom',
               width: state.settings.width,
               height: state.settings.height
             }}
-            onChange={handleResolutionChange}
+            onChange={(res) => onStateChange({
+              settings: {
+                ...state.settings,
+                width: res.width,
+                height: res.height
+              }
+            })}
           />
 
           <FontSelector
             value={state.settings.font}
-            onChange={handleFontChange}
-          />
-
-          <LayoutSelector
-            value={(state.settings.layout || 'default') as 'default' | 'facebook-modern' | 'facebook-minimal' | 'durbin-news'}
-            onChange={handleLayoutChange}
+            onChange={(font) => onStateChange({
+              settings: { ...state.settings, font }
+            })}
           />
 
           <ColorPicker
             value={state.settings.brandColor}
-            onChange={handleColorChange}
+            onChange={(color) => onStateChange({
+              settings: { ...state.settings, brandColor: color }
+            })}
           />
+        </div>
 
-          <div className="pt-4 border-t border-gray-100">
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              Export Format
-            </label>
-            <div className="grid grid-cols-2 gap-3">
+        <div className="pt-4 border-t border-border/40 space-y-3">
+          <Label>Export Quality</Label>
+          <div className="flex items-center gap-4 bg-secondary/30 p-1 rounded-lg border border-border/50">
+            {['png', 'jpeg'].map((format) => (
               <button
-                type="button"
-                onClick={() => handleFormatChange('png')}
-                className={`
-                  px-4 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center justify-center
-                  ${state.settings.format === 'png'
-                    ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-600 ring-offset-1'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                key={format}
+                onClick={() => onStateChange({
+                  settings: {
+                    ...state.settings,
+                    format: format as 'png' | 'jpeg',
+                    quality: format === 'jpeg' ? 90 : undefined
                   }
-                `}
+                })}
+                className={cn(
+                  "flex-1 py-1.5 text-sm font-medium rounded-md transition-all",
+                  state.settings.format === format
+                    ? "bg-background text-foreground shadow-sm ring-1 ring-border"
+                    : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                )}
               >
-                PNG
+                {format.toUpperCase()}
               </button>
-              <button
-                type="button"
-                onClick={() => handleFormatChange('jpeg')}
-                className={`
-                  px-4 py-2.5 rounded-lg font-medium transition-all duration-200 flex items-center justify-center
-                  ${state.settings.format === 'jpeg'
-                    ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-600 ring-offset-1'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }
-                `}
-              >
-                JPEG
-              </button>
-            </div>
+            ))}
           </div>
 
           {state.settings.format === 'jpeg' && (
-            <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="bg-secondary/20 p-3 rounded-lg border border-border/50">
               <div className="flex justify-between items-center mb-2">
-                <label className="text-sm font-medium text-gray-700">
-                  JPEG Quality
-                </label>
-                <span className="text-sm font-bold text-blue-600">{state.settings.quality || 90}%</span>
+                <span className="text-xs font-medium text-muted-foreground">Quality</span>
+                <span className="text-xs font-bold text-primary">{state.settings.quality || 90}%</span>
               </div>
               <input
                 type="range"
-                min="10"
+                min="60"
                 max="100"
                 value={state.settings.quality || 90}
-                onChange={(e) => handleQualityChange(parseInt(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                onChange={(e) => onStateChange({
+                  settings: { ...state.settings, quality: parseInt(e.target.value) }
+                })}
+                className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
               />
-              <div className="flex justify-between text-xs text-gray-500 mt-2">
-                <span>Smaller File</span>
-                <span>Better Quality</span>
-              </div>
             </div>
           )}
         </div>
-      </div>
+      </AccordionItem>
     </div>
   );
 };

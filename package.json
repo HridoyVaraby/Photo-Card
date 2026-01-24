@@ -35,9 +35,14 @@
     "vite": "^5.4.21"
   },
   "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.29.0",
+    "lucide-react": "^0.563.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "serve": "^14.2.5"
+    "serve": "^14.2.5",
+    "tailwind-merge": "^3.4.0"
   },
   "pnpm": {
     "overrides": {

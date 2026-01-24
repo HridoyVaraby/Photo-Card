@@ -1,4 +1,7 @@
 import React from 'react';
+import { Label } from './ui/label';
+import { cn } from '../lib/utils';
+import { Check, LayoutTemplate, Box, Type } from 'lucide-react';
 
 interface LayoutSelectorProps {
   value: 'default' | 'facebook-modern' | 'facebook-minimal' | 'durbin-news';
@@ -7,24 +10,28 @@ interface LayoutSelectorProps {
 
 const LAYOUTS = [
   {
-    name: 'Default',
+    name: 'Classic',
     value: 'default' as const,
-    description: 'Classic layout with logo top-right'
+    description: 'Logo top-right, bottom bar',
+    icon: LayoutTemplate
   },
   {
-    name: 'Facebook Modern',
+    name: 'Modern Overlay',
     value: 'facebook-modern' as const,
-    description: 'Trendy design with overlay box'
+    description: 'Gradient overlay text',
+    icon: Box
   },
   {
-    name: 'Facebook Minimal',
+    name: 'Minimalist',
     value: 'facebook-minimal' as const,
-    description: 'Clean, typography-focused design'
+    description: 'Clean typography focus',
+    icon: Type
   },
   {
-    name: 'Durbin News',
+    name: 'Broadcaster',
     value: 'durbin-news' as const,
-    description: 'Bengali news layout with red background'
+    description: 'Full news style frame',
+    icon: LayoutTemplate
   }
 ];
 
@@ -33,47 +40,44 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
   onChange
 }) => {
   return (
-    <div className="w-full">
-      <label className="block text-sm font-medium text-gray-700 mb-2">
-        Layout Style
-      </label>
+    <div className="space-y-3">
+      <Label>Composition Style</Label>
 
-      <div className="space-y-2">
-        {LAYOUTS.map((layout) => (
-          <button
-            key={layout.value}
-            type="button"
-            onClick={() => onChange(layout.value)}
-            className={`
-              w-full p-3 text-left rounded-lg border-2 transition-all
-              ${value === layout.value
-                ? 'border-blue-500 bg-blue-50 text-blue-900'
-                : 'border-gray-200 hover:border-gray-300 text-gray-700 hover:bg-gray-50'
-              }
-            `}
-          >
-            <div className="flex items-center justify-between">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {LAYOUTS.map((layout) => {
+          const Icon = layout.icon;
+          return (
+            <button
+              key={layout.value}
+              type="button"
+              onClick={() => onChange(layout.value)}
+              className={cn(
+                "relative p-3 text-left rounded-xl border-2 transition-all duration-200 h-full flex flex-col justify-between",
+                value === layout.value
+                  ? "border-accent bg-accent/5 shadow-sm"
+                  : "border-border hover:border-accent/50 hover:bg-secondary/50 hover:shadow-sm"
+              )}
+            >
+              <div className="flex items-start justify-between mb-2">
+                <div className={cn("p-2 rounded-lg", value === layout.value ? "bg-accent/10 text-accent" : "bg-secondary text-muted-foreground")}>
+                  <Icon size={18} />
+                </div>
+                {value === layout.value && (
+                  <div className="w-5 h-5 bg-accent rounded-full flex items-center justify-center shadow-sm animate-fade-in">
+                    <Check className="w-3 h-3 text-white stroke-[3]" />
+                  </div>
+                )}
+              </div>
+
               <div>
-                <div className="font-medium">{layout.name}</div>
-                <div className="text-sm text-gray-500">
+                <div className="font-medium text-sm text-foreground">{layout.name}</div>
+                <div className="text-xs text-muted-foreground mt-1 leading-snug">
                   {layout.description}
                 </div>
               </div>
-
-              {value === layout.value && (
-                <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
-                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                </div>
-              )}
-            </div>
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-2 text-xs text-gray-500">
-        Choose the visual style that best fits your brand
+            </button>
+          )
+        })}
       </div>
     </div>
   );

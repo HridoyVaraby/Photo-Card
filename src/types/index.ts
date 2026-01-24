@@ -8,6 +8,12 @@ export interface CardSettings {
   layout?: 'default' | 'facebook-modern' | 'facebook-minimal' | 'durbin-news';
 }
 
+export interface ImagePosition {
+  x: number;
+  y: number;
+  scale: number;
+}
+
 export interface CardState {
   mainImage: string | null;
   logo: string | null;
@@ -15,6 +21,7 @@ export interface CardState {
   date?: string;
   backgroundImage?: string | null;
   settings: CardSettings;
+  imagePosition?: ImagePosition; // New field for panning/zooming
 }
 
 export interface ImageFile {
