@@ -61,13 +61,15 @@ export const FacebookModernLayout: LayoutStrategy = {
         if (state.headline) {
             // Wrap text and calculate font size
             const lines = wrapText(ctx, state.headline, textMaxWidth);
+            const availableHeight = overlayHeight * 0.8;
             const fontSize = calculateFontSize(
                 ctx,
                 state.headline,
                 textMaxWidth,
+                availableHeight,
                 state.settings.font,
-                Math.floor(overlayHeight * 0.5),
-                Math.floor(overlayHeight * 0.25),
+                Math.floor(overlayHeight * 0.5), // maxFontSize
+                Math.floor(overlayHeight * 0.2), // minFontSize
             );
 
             ctx.font = `bold ${fontSize}px ${state.settings.font}`;

@@ -58,10 +58,12 @@ export const DefaultLayout: LayoutStrategy = {
         if (state.headline) {
             // Wrap text and calculate font size
             const lines = wrapText(ctx, state.headline, textMaxWidth);
+            const availableHeight = barHeight * 0.8;
             const fontSize = calculateFontSize(
                 ctx,
                 state.headline,
                 textMaxWidth,
+                availableHeight,
                 state.settings.font,
                 Math.floor(barHeight * 0.6),
                 Math.floor(barHeight * 0.3),

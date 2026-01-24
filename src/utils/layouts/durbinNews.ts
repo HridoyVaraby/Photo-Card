@@ -212,10 +212,17 @@ async function drawDurbinDetails(ctx: CanvasRenderingContext2D, state: any, widt
         ctx.shadowOffsetX = 2;
         ctx.shadowOffsetY = 2;
 
-        // 1. Calculate optimal font size relative to maxWidth (pretending single line first to get a baseline)
-        // Note: For multi-line wrapping, we might want a slightly different approach, but sticking to "shrink to fit width" 
-        // is a safe start. If it wraps, we accept it.
-        const fontSize = calculateFontSize(ctx, state.headline, headlineMaxWidth, fontFamily, maxFontSize, 20);
+        // 1. Calculate optimal font size ensuring it fits both width (wrapped) and height
+        const availableHeight = footerHeight * 0.8; // Leave 10% padding top/bottom
+        const fontSize = calculateFontSize(
+            ctx,
+            state.headline,
+            headlineMaxWidth,
+            availableHeight, // New argument: Max Height Constraint
+            fontFamily,
+            maxFontSize,
+            20
+        );
 
         // 2. Apply the calculated font
         ctx.font = `bold ${fontSize}px ${fontFamily}`;

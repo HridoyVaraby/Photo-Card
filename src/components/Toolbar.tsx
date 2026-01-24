@@ -165,8 +165,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             rows={3}
           />
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Max 3 lines</span>
-            <span className={state.headline.length > 100 ? 'text-orange-500' : ''}>
+            <span>Auto-scales | Max recommended: 140</span>
+            <span className={state.headline.length > 140 ? 'text-destructive' : (state.headline.length > 100 ? 'text-orange-500' : '')}>
               {state.headline.length} chars
             </span>
           </div>
