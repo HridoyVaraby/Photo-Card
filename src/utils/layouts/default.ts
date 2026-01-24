@@ -55,30 +55,99 @@ export const DefaultLayout: LayoutStrategy = {
         // Set font
         ctx.font = `bold ${state.settings.font}`;
 
-        if (state.headline) {
-            // Wrap text and calculate font size
-            const lines = wrapText(ctx, state.headline, textMaxWidth);
-            const availableHeight = barHeight * 0.8;
-            const fontSize = calculateFontSize(
+        // Content Group (Headline + CTA)
+        const hasHeadline = !!state.headline;
+        const hasCTA = !!state.ctaText;
+
+        let headlineLines: string[] = [];
+        let headlineFontSize = 0;
+        let headlineHeight = 0;
+        let ctaHeight = 0;
+        let ctaFontSize = 0;
+        const contentSpacing = hasHeadline && hasCTA ? barHeight * 0.05 : 0;
+
+        // 1. Calculate Headline Specs
+        if (hasHeadline) {
+            const heightConstraint = hasCTA ? barHeight * 0.6 : barHeight * 0.8;
+
+            headlineFontSize = calculateFontSize(
                 ctx,
                 state.headline,
                 textMaxWidth,
-                availableHeight,
+                heightConstraint,
                 state.settings.font,
                 Math.floor(barHeight * 0.6),
-                Math.floor(barHeight * 0.3),
+                Math.floor(barHeight * 0.3)
             );
 
-            ctx.font = `bold ${fontSize}px ${state.settings.font}`;
+            ctx.font = `bold ${headlineFontSize}px ${state.settings.font}`;
+            headlineLines = wrapText(ctx, state.headline, textMaxWidth);
+            headlineHeight = headlineLines.length * (headlineFontSize * 1.2);
+        }
 
-            // Draw each line
-            const lineHeight = fontSize * 1.2;
-            const totalHeight = lines.length * lineHeight;
-            const startY = textY - totalHeight / 2 + fontSize / 2;
+        // 2. Calculate CTA Specs
+        if (hasCTA) {
+            const baseSize = hasHeadline ? headlineFontSize : Math.floor(barHeight * 0.25);
+            ctaFontSize = Math.floor(baseSize * 0.6);
+            if (ctaFontSize < 16) ctaFontSize = 16;
+            const ctaPaddingY = ctaFontSize * 0.4;
+            ctaHeight = ctaFontSize + ctaPaddingY * 2;
+        }
 
-            lines.forEach((line, index) => {
-                ctx.fillText(line, textX, startY + index * lineHeight);
+        // 3. Calculate Vertical Center in Bar
+        const totalContentHeight = headlineHeight + contentSpacing + ctaHeight;
+        let startY = barY + (barHeight - totalContentHeight) / 2;
+
+        // 4. Draw Headline
+        if (hasHeadline) {
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "left";
+            ctx.textBaseline = "middle";
+            ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+            ctx.shadowBlur = 4;
+            ctx.shadowOffsetX = 2;
+            ctx.shadowOffsetY = 2;
+            ctx.font = `bold ${headlineFontSize}px ${state.settings.font}`;
+
+            const lineHeight = headlineFontSize * 1.2;
+            let currentY = startY + lineHeight / 2;
+
+            headlineLines.forEach((line) => {
+                ctx.fillText(line, textX, currentY);
+                currentY += lineHeight;
             });
+
+            startY += headlineHeight + contentSpacing;
+        }
+
+        // 5. Draw CTA
+        if (hasCTA) {
+            ctx.font = `bold ${ctaFontSize}px ${state.settings.font}`;
+            const ctaPaddingX = ctaFontSize;
+            const ctaPaddingY = ctaFontSize * 0.4;
+            const ctaMeasure = ctx.measureText(state.ctaText!);
+            const ctaWidth = ctaMeasure.width + ctaPaddingX * 2;
+            const ctaRealHeight = ctaFontSize + ctaPaddingY * 2;
+
+            // Draw pill
+            ctx.fillStyle = "rgba(255,255,255,0.2)";
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 1.5;
+
+            ctx.beginPath();
+            if (ctx.roundRect) {
+                ctx.roundRect(textX, startY, ctaWidth, ctaRealHeight, ctaRealHeight / 2);
+            } else {
+                ctx.rect(textX, startY, ctaWidth, ctaRealHeight);
+            }
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "left";
+            ctx.textBaseline = "middle";
+            ctx.shadowColor = "rgba(0,0,0,0.5)";
+            ctx.fillText(state.ctaText!, textX + ctaPaddingX, startY + ctaRealHeight / 2);
         }
     },
 };

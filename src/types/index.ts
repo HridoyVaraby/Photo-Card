@@ -18,6 +18,7 @@ export interface CardState {
   mainImage: string | null;
   logo: string | null;
   headline: string;
+  ctaText?: string;
   date?: string;
   backgroundImage?: string | null;
   settings: CardSettings;

@@ -50,30 +50,72 @@ export const FacebookMinimalLayout: LayoutStrategy = {
         // Set font
         ctx.font = `600 ${state.settings.font}`;
 
-        if (state.headline) {
-            // Wrap text and calculate font size
-            const lines = wrapText(ctx, state.headline, textMaxWidth);
-            const availableHeight = barHeight * 0.8;
-            const fontSize = calculateFontSize(
+        // Grouped Content (Headline + CTA)
+        const hasHeadline = !!state.headline;
+        const hasCTA = !!state.ctaText;
+
+        let headlineLines: string[] = [];
+        let headlineFontSize = 0;
+        let headlineHeight = 0;
+        let ctaHeight = 0;
+        let ctaFontSize = 0;
+        const contentSpacing = hasHeadline && hasCTA ? barHeight * 0.05 : 0;
+
+        if (hasHeadline) {
+            const heightConstraint = hasCTA ? barHeight * 0.6 : barHeight * 0.8;
+            headlineFontSize = calculateFontSize(
                 ctx,
                 state.headline,
                 textMaxWidth,
-                availableHeight,
+                heightConstraint,
                 state.settings.font,
                 Math.floor(barHeight * 0.6),
                 Math.floor(barHeight * 0.3),
             );
 
-            ctx.font = `600 ${fontSize}px ${state.settings.font}`;
+            ctx.font = `600 ${headlineFontSize}px ${state.settings.font}`;
+            headlineLines = wrapText(ctx, state.headline, textMaxWidth);
+            headlineHeight = headlineLines.length * (headlineFontSize * 1.1);
+        }
 
-            // Draw each line
-            const lineHeight = fontSize * 1.1;
-            const totalHeight = lines.length * lineHeight;
-            const startY = textY - totalHeight / 2 + fontSize / 2;
+        if (hasCTA) {
+            const baseSize = hasHeadline ? headlineFontSize : Math.floor(barHeight * 0.25);
+            ctaFontSize = Math.floor(baseSize * 0.65);
+            if (ctaFontSize < 16) ctaFontSize = 16;
+            ctaHeight = ctaFontSize * 1.5; // Text height
+        }
 
-            lines.forEach((line, index) => {
-                ctx.fillText(line, textX, startY + index * lineHeight);
+        const totalContentHeight = headlineHeight + contentSpacing + ctaHeight;
+        let startY = barY + (barHeight - totalContentHeight) / 2;
+
+        if (hasHeadline) {
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "left";
+            ctx.textBaseline = "middle";
+            ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
+            ctx.shadowBlur = 3;
+            ctx.shadowOffsetX = 1;
+            ctx.shadowOffsetY = 1;
+
+            ctx.font = `600 ${headlineFontSize}px ${state.settings.font}`;
+            const lineHeight = headlineFontSize * 1.1;
+            let currentY = startY + lineHeight / 2;
+
+            headlineLines.forEach((line) => {
+                ctx.fillText(line, textX, currentY);
+                currentY += lineHeight;
             });
+
+            startY += headlineHeight + contentSpacing;
+        }
+
+        if (hasCTA) {
+            ctx.font = `600 ${ctaFontSize}px ${state.settings.font}`;
+            ctx.fillStyle = "rgba(255,255,255,0.9)";
+            ctx.textAlign = "left";
+            ctx.textBaseline = "top";
+            ctx.shadowColor = "rgba(0,0,0,0.2)";
+            ctx.fillText(`👉 ${state.ctaText}`, textX, startY);
         }
     },
 };

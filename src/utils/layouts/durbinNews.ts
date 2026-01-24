@@ -177,7 +177,7 @@ async function drawDurbinDetails(ctx: CanvasRenderingContext2D, state: any, widt
     ctx.font = `bold ${dateFontSize}px ${fontFamily}`;
     ctx.textAlign = "right";
     ctx.textBaseline = "top";
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = "#000000"; // Changed to black as requested
     ctx.fillText(dateText, width - rightPadding, topPadding);
 
     // Badge
@@ -198,12 +198,60 @@ async function drawDurbinDetails(ctx: CanvasRenderingContext2D, state: any, widt
     ctx.fillText(badgeText, bx + bw / 2, by + bh / 2);
 
     // Headline Bottom
-    if (state.headline) {
-        const headlineY = height - footerHeight;
+    // Content Group (Headline + CTA)
+    const hasHeadline = !!state.headline;
+    const hasCTA = !!state.ctaText;
+    const footerY = height - footerHeight;
+
+    let headlineLines: string[] = [];
+    let headlineFontSize = 0;
+    let headlineHeight = 0;
+    let ctaHeight = 0;
+    let ctaFontSize = 0;
+    const contentSpacing = hasHeadline && hasCTA ? width * 0.02 : 0; // Space between headline and CTA
+
+    // 1. Calculate Headline Specs
+    if (hasHeadline) {
         const headlinePadding = width * 0.05;
         const headlineMaxWidth = width - headlinePadding * 2;
         const maxFontSize = Math.floor(footerHeight * 0.4);
 
+        // If CTA exists, reduce available height for headline
+        // Rough estimate: CTA takes ~20-25% of footer
+        const heightConstraint = hasCTA ? footerHeight * 0.55 : footerHeight * 0.8;
+
+        headlineFontSize = calculateFontSize(
+            ctx,
+            state.headline,
+            headlineMaxWidth,
+            heightConstraint,
+            fontFamily,
+            maxFontSize,
+            20
+        );
+
+        ctx.font = `bold ${headlineFontSize}px ${fontFamily}`;
+        headlineLines = wrapText(ctx, state.headline, headlineMaxWidth);
+        headlineHeight = headlineLines.length * (headlineFontSize * 1.3);
+    }
+
+    // 2. Calculate CTA Specs
+    if (hasCTA) {
+        // Scale CTA based on headline font size (or default if no headline)
+        const baseSize = hasHeadline ? headlineFontSize : Math.floor(footerHeight * 0.25);
+        ctaFontSize = Math.floor(baseSize * 0.6);
+        if (ctaFontSize < 16) ctaFontSize = 16; // Minimum legible size
+
+        const ctaPaddingY = ctaFontSize * 0.6;
+        ctaHeight = ctaFontSize + ctaPaddingY * 2;
+    }
+
+    // 3. Calculate Vertical Center
+    const totalContentHeight = headlineHeight + contentSpacing + ctaHeight;
+    let startY = footerY + (footerHeight - totalContentHeight) / 2;
+
+    // 4. Draw Headline
+    if (hasHeadline) {
         ctx.fillStyle = "#FFD700";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
@@ -211,32 +259,56 @@ async function drawDurbinDetails(ctx: CanvasRenderingContext2D, state: any, widt
         ctx.shadowBlur = 4;
         ctx.shadowOffsetX = 2;
         ctx.shadowOffsetY = 2;
+        ctx.font = `bold ${headlineFontSize}px ${fontFamily}`;
 
-        // 1. Calculate optimal font size ensuring it fits both width (wrapped) and height
-        const availableHeight = footerHeight * 0.8; // Leave 10% padding top/bottom
-        const fontSize = calculateFontSize(
-            ctx,
-            state.headline,
-            headlineMaxWidth,
-            availableHeight, // New argument: Max Height Constraint
-            fontFamily,
-            maxFontSize,
-            20
-        );
+        // Move startY to center of first line (Since textBaseline is middle)
+        // wrapper top is startY. first line center is startY + lineHeight/2.
+        const lineHeight = headlineFontSize * 1.3;
+        let currentY = startY + lineHeight / 2;
 
-        // 2. Apply the calculated font
-        ctx.font = `bold ${fontSize}px ${fontFamily}`;
-
-        // 3. Wrap text using the CORRECT font
-        const lines = wrapText(ctx, state.headline, headlineMaxWidth);
-
-        // 4. Draw
-        const lineHeight = fontSize * 1.3;
-        const totalH = lines.length * lineHeight;
-        const startY = headlineY + footerHeight / 2 - totalH / 2 + fontSize / 2;
-
-        lines.forEach((line, i) => {
-            ctx.fillText(line, width / 2, startY + i * lineHeight);
+        headlineLines.forEach((line) => {
+            ctx.fillText(line, width / 2, currentY);
+            currentY += lineHeight;
         });
+
+        // Advance startY for CTA
+        startY += headlineHeight + contentSpacing;
+    } else if (hasCTA) {
+        // If only CTA, startY is top of CTA block
+    }
+
+    // 5. Draw CTA
+    if (hasCTA) {
+        ctx.font = `600 ${ctaFontSize}px ${fontFamily}`;
+        const ctaPaddingX = ctaFontSize * 1.5;
+        const ctaPaddingY = ctaFontSize * 0.6;
+
+        const ctaMeasure = ctx.measureText(state.ctaText!);
+        const ctaWidth = ctaMeasure.width + ctaPaddingX * 2;
+        const ctaRealHeight = ctaFontSize + ctaPaddingY * 2; // Recalculate exact
+        const ctaX = (width - ctaWidth) / 2;
+
+        // Adjust Y to point to top of pill
+        const ctaY = startY;
+
+        // Adjusted styling for hook: White pill with headline-colored border
+        ctx.fillStyle = "#ffffff";
+        ctx.strokeStyle = "#FFD700";
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+        if (ctx.roundRect) {
+            ctx.roundRect(ctaX, ctaY, ctaWidth, ctaRealHeight, ctaRealHeight / 2);
+        } else {
+            ctx.rect(ctaX, ctaY, ctaWidth, ctaRealHeight);
+        }
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#000000"; // Black text
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.shadowColor = "transparent";
+        ctx.fillText(state.ctaText!, width / 2, ctaY + ctaRealHeight / 2);
     }
 }

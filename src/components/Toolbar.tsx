@@ -173,6 +173,15 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         </div>
 
         <div className="grid gap-2">
+          <Label>Call to Action / Hook</Label>
+          <Input
+            value={state.ctaText || ''}
+            onChange={(e) => onStateChange({ ctaText: e.target.value })}
+            placeholder="e.g. Link in comments..."
+          />
+        </div>
+
+        <div className="grid gap-2">
           <Label>Date (Bengali)</Label>
           <Input
             value={state.date || ''}

@@ -12,6 +12,7 @@ const initialState: CardState = {
   mainImage: null,
   logo: null,
   headline: "",
+  ctaText: "বিস্তারিত কমেন্টে",
   date: "৩০ নভেম্বর, ২০২৫",
   settings: {
     width: 1080,
